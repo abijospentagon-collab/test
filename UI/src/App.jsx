@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import dbData from '../db.json'
 
 // Modular Components
 import Sidebar from './components/Sidebar'
@@ -17,16 +18,27 @@ import SettingsView from './components/SettingsView'
 import VoiceAssistantView from './components/VoiceAssistantView'
 
 export default function App() {
-  // Global States (fetched from backend)
-  const [students, setStudents] = useState([])
-  const [staff, setStaff] = useState([])
-  const [inventory, setInventory] = useState([])
-  const [tasks, setTasks] = useState([])
-  const [activities, setActivities] = useState([])
-  const [events, setEvents] = useState([])
-  const [messages, setMessages] = useState({ templates: [], conversations: [] })
-  const [attendance, setAttendance] = useState({ students: [], staff: [] })
-  const [voiceLogs, setVoiceLogs] = useState([])
+  // Load initial local state
+  const getInitialState = (key, fallback) => {
+    try {
+      const saved = localStorage.getItem('sorted_os_' + key);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.warn("Error reading localStorage key:", key, e);
+    }
+    return fallback;
+  }
+
+  // Global States (fetched from backend or localStorage/dbData)
+  const [students, setStudents] = useState(() => getInitialState('students', dbData.students || []))
+  const [staff, setStaff] = useState(() => getInitialState('staff', dbData.staff || []))
+  const [inventory, setInventory] = useState(() => getInitialState('inventory', dbData.inventory || []))
+  const [tasks, setTasks] = useState(() => getInitialState('tasks', dbData.tasks || []))
+  const [activities, setActivities] = useState(() => getInitialState('activities', dbData.activities || []))
+  const [events, setEvents] = useState(() => getInitialState('events', dbData.events || []))
+  const [messages, setMessages] = useState(() => getInitialState('messages', dbData.messages || { templates: [], conversations: [] }))
+  const [attendance, setAttendance] = useState(() => getInitialState('attendance', dbData.attendance || { students: [], staff: [] }))
+  const [voiceLogs, setVoiceLogs] = useState(() => getInitialState('voiceLogs', dbData.voiceLogs || []))
 
   const [activeView, setActiveView] = useState('dashboard')
   const [languagePreference, setLanguagePreference] = useState('English') // English or Tamil
@@ -37,18 +49,18 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         if (data && !data.error) {
-          if (data.students) setStudents(data.students);
-          if (data.staff) setStaff(data.staff);
-          if (data.inventory) setInventory(data.inventory);
-          if (data.tasks) setTasks(data.tasks);
-          if (data.activities) setActivities(data.activities);
-          if (data.events) setEvents(data.events);
-          if (data.messages) setMessages(data.messages);
-          if (data.attendance) setAttendance(data.attendance);
-          if (data.voiceLogs) setVoiceLogs(data.voiceLogs);
+          if (data.students) { setStudents(data.students); localStorage.setItem('sorted_os_students', JSON.stringify(data.students)); }
+          if (data.staff) { setStaff(data.staff); localStorage.setItem('sorted_os_staff', JSON.stringify(data.staff)); }
+          if (data.inventory) { setInventory(data.inventory); localStorage.setItem('sorted_os_inventory', JSON.stringify(data.inventory)); }
+          if (data.tasks) { setTasks(data.tasks); localStorage.setItem('sorted_os_tasks', JSON.stringify(data.tasks)); }
+          if (data.activities) { setActivities(data.activities); localStorage.setItem('sorted_os_activities', JSON.stringify(data.activities)); }
+          if (data.events) { setEvents(data.events); localStorage.setItem('sorted_os_events', JSON.stringify(data.events)); }
+          if (data.messages) { setMessages(data.messages); localStorage.setItem('sorted_os_messages', JSON.stringify(data.messages)); }
+          if (data.attendance) { setAttendance(data.attendance); localStorage.setItem('sorted_os_attendance', JSON.stringify(data.attendance)); }
+          if (data.voiceLogs) { setVoiceLogs(data.voiceLogs); localStorage.setItem('sorted_os_voiceLogs', JSON.stringify(data.voiceLogs)); }
         }
       })
-      .catch(err => console.error("Error fetching state from PHP backend:", err));
+      .catch(err => console.error("Error fetching state from PHP backend (using localStorage/db.json fallback):", err));
   }, []);
 
   // Central Sync Function
@@ -65,16 +77,16 @@ export default function App() {
       voiceLogs: updatedFields.voiceLogs !== undefined ? updatedFields.voiceLogs : voiceLogs
     };
 
-    // Update local react states
-    if (updatedFields.students !== undefined) setStudents(updatedFields.students);
-    if (updatedFields.staff !== undefined) setStaff(updatedFields.staff);
-    if (updatedFields.inventory !== undefined) setInventory(updatedFields.inventory);
-    if (updatedFields.tasks !== undefined) setTasks(updatedFields.tasks);
-    if (updatedFields.activities !== undefined) setActivities(updatedFields.activities);
-    if (updatedFields.events !== undefined) setEvents(updatedFields.events);
-    if (updatedFields.messages !== undefined) setMessages(updatedFields.messages);
-    if (updatedFields.attendance !== undefined) setAttendance(updatedFields.attendance);
-    if (updatedFields.voiceLogs !== undefined) setVoiceLogs(updatedFields.voiceLogs);
+    // Update local react states and localStorage
+    if (updatedFields.students !== undefined) { setStudents(updatedFields.students); localStorage.setItem('sorted_os_students', JSON.stringify(updatedFields.students)); }
+    if (updatedFields.staff !== undefined) { setStaff(updatedFields.staff); localStorage.setItem('sorted_os_staff', JSON.stringify(updatedFields.staff)); }
+    if (updatedFields.inventory !== undefined) { setInventory(updatedFields.inventory); localStorage.setItem('sorted_os_inventory', JSON.stringify(updatedFields.inventory)); }
+    if (updatedFields.tasks !== undefined) { setTasks(updatedFields.tasks); localStorage.setItem('sorted_os_tasks', JSON.stringify(updatedFields.tasks)); }
+    if (updatedFields.activities !== undefined) { setActivities(updatedFields.activities); localStorage.setItem('sorted_os_activities', JSON.stringify(updatedFields.activities)); }
+    if (updatedFields.events !== undefined) { setEvents(updatedFields.events); localStorage.setItem('sorted_os_events', JSON.stringify(updatedFields.events)); }
+    if (updatedFields.messages !== undefined) { setMessages(updatedFields.messages); localStorage.setItem('sorted_os_messages', JSON.stringify(updatedFields.messages)); }
+    if (updatedFields.attendance !== undefined) { setAttendance(updatedFields.attendance); localStorage.setItem('sorted_os_attendance', JSON.stringify(updatedFields.attendance)); }
+    if (updatedFields.voiceLogs !== undefined) { setVoiceLogs(updatedFields.voiceLogs); localStorage.setItem('sorted_os_voiceLogs', JSON.stringify(updatedFields.voiceLogs)); }
 
     // Save to backend db.json
     fetch('http://localhost:5000/api/state.php', {
@@ -82,7 +94,7 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(nextState)
     })
-    .catch(err => console.error("Error saving state to PHP backend:", err));
+    .catch(err => console.error("Error saving state to PHP backend (local storage remains updated):", err));
   };
 
   // Helper setters that wrap sync logic
@@ -215,6 +227,14 @@ export default function App() {
       case 'voice-portal':
         return (
           <VoiceAssistantView 
+            students={students}
+            staff={staff}
+            inventory={inventory}
+            tasks={tasks}
+            activities={activities}
+            events={events}
+            messages={messages}
+            attendance={attendance}
             voiceLogs={voiceLogs}
             setVoiceLogs={(logs) => saveStateToBackend({ voiceLogs: logs })}
             languagePreference={languagePreference}
@@ -229,6 +249,17 @@ export default function App() {
               if (newData.messages) setMessages(newData.messages);
               if (newData.attendance) setAttendance(newData.attendance);
               if (newData.voiceLogs) setVoiceLogs(newData.voiceLogs);
+              
+              // Sync local storage
+              if (newData.students) localStorage.setItem('sorted_os_students', JSON.stringify(newData.students));
+              if (newData.staff) localStorage.setItem('sorted_os_staff', JSON.stringify(newData.staff));
+              if (newData.inventory) localStorage.setItem('sorted_os_inventory', JSON.stringify(newData.inventory));
+              if (newData.tasks) localStorage.setItem('sorted_os_tasks', JSON.stringify(newData.tasks));
+              if (newData.activities) localStorage.setItem('sorted_os_activities', JSON.stringify(newData.activities));
+              if (newData.events) localStorage.setItem('sorted_os_events', JSON.stringify(newData.events));
+              if (newData.messages) localStorage.setItem('sorted_os_messages', JSON.stringify(newData.messages));
+              if (newData.attendance) localStorage.setItem('sorted_os_attendance', JSON.stringify(newData.attendance));
+              if (newData.voiceLogs) localStorage.setItem('sorted_os_voiceLogs', JSON.stringify(newData.voiceLogs));
             }}
           />
         )
@@ -284,6 +315,17 @@ export default function App() {
           if (newData.messages) setMessages(newData.messages);
           if (newData.attendance) setAttendance(newData.attendance);
           if (newData.voiceLogs) setVoiceLogs(newData.voiceLogs);
+
+          // Sync local storage
+          if (newData.students) localStorage.setItem('sorted_os_students', JSON.stringify(newData.students));
+          if (newData.staff) localStorage.setItem('sorted_os_staff', JSON.stringify(newData.staff));
+          if (newData.inventory) localStorage.setItem('sorted_os_inventory', JSON.stringify(newData.inventory));
+          if (newData.tasks) localStorage.setItem('sorted_os_tasks', JSON.stringify(newData.tasks));
+          if (newData.activities) localStorage.setItem('sorted_os_activities', JSON.stringify(newData.activities));
+          if (newData.events) localStorage.setItem('sorted_os_events', JSON.stringify(newData.events));
+          if (newData.messages) localStorage.setItem('sorted_os_messages', JSON.stringify(newData.messages));
+          if (newData.attendance) localStorage.setItem('sorted_os_attendance', JSON.stringify(newData.attendance));
+          if (newData.voiceLogs) localStorage.setItem('sorted_os_voiceLogs', JSON.stringify(newData.voiceLogs));
         }}
       />
     </div>

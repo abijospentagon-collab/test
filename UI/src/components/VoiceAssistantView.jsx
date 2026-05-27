@@ -1,7 +1,16 @@
 import React, { useState } from 'react'
 import { Mic, MicOff, Volume2, Languages, HelpCircle, FileText, CheckCircle2, XCircle, Command, Play } from 'lucide-react'
+import { parseVoiceCommandLocally } from '../utils/voiceParser'
 
 export default function VoiceAssistantView({ 
+  students,
+  staff,
+  inventory,
+  tasks,
+  activities,
+  events,
+  messages,
+  attendance,
   voiceLogs, 
   setVoiceLogs, 
   languagePreference, 
@@ -53,9 +62,26 @@ export default function VoiceAssistantView({
       }
 
     } catch (err) {
-      console.error("Error communicating with PHP backend:", err);
-      setStatusMsg("Connection error. Ensure backend server is running on port 5000.");
+      console.warn("Error communicating with PHP backend, using local client-side fallback:", err);
+      
+      const localDbState = { students, staff, inventory, tasks, activities, events, messages, attendance, voiceLogs };
+      const data = parseVoiceCommandLocally(cmdText, localDbState, languagePreference);
+      
       setShowIndicator(false);
+      setStatusMsg(data.message + " (Local Mode)");
+
+      // Trigger text to speech on frontend
+      if ('speechSynthesis' in window && data.speechText) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(data.speechText);
+        utterance.lang = languagePreference === 'Tamil' ? 'ta-IN' : 'en-IN';
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // Sync state back to React
+      if (data.updatedData) {
+        onVoiceUpdate(data.updatedData);
+      }
     }
   }
 

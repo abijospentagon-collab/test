@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Mic, MicOff, Check, X, Command } from 'lucide-react'
+import { parseVoiceCommandLocally } from '../utils/voiceParser'
 
 export default function VoiceController({ 
   students, 
@@ -141,13 +142,59 @@ export default function VoiceController({
       }
 
     } catch (err) {
-      console.error("Error connecting to backend API:", err);
+      console.warn("Error connecting to backend API, using local client-side fallback:", err);
+      
+      const localDbState = { 
+        students, 
+        staff, 
+        inventory, 
+        tasks, 
+        attendance, 
+        voiceLogs,
+        activities: [],
+        events: [],
+        messages: { templates: [], conversations: [] }
+      };
+      
+      const data = parseVoiceCommandLocally(cmdText, localDbState, languagePreference);
+
       setParsedAction({
-        type: 'ERROR',
-        label: 'Connection Error',
-        description: 'Failed to contact backend API. Make sure the PHP backend server is running.',
-        success: false
+        type: data.action?.type || 'UNKNOWN',
+        label: data.success ? (data.action?.type ? data.action.type.replace('_', ' ') : 'Action Recognized') : 'Intent Unrecognized',
+        description: data.message + " (Local Mode)",
+        speechText: data.speechText,
+        success: data.success
       });
+
+      if (data.success) {
+        if ('speechSynthesis' in window && data.speechText) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(data.speechText);
+          utterance.lang = languagePreference === 'Tamil' ? 'ta-IN' : 'en-IN';
+          window.speechSynthesis.speak(utterance);
+        }
+
+        if (data.action) {
+          if (data.action.type === 'NAVIGATE') {
+            setActiveView(data.action.targetView);
+          }
+          if (data.updatedData) {
+            onVoiceUpdate(data.updatedData);
+          }
+        }
+
+        setTimeout(() => {
+          setShowOverlay(false);
+          setParsedAction(null);
+          setTranscript('');
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          setShowOverlay(false);
+          setParsedAction(null);
+          setTranscript('');
+        }, 3500);
+      }
     }
   }
 
