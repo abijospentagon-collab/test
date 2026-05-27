@@ -649,6 +649,14 @@
     "voiceAction": null,
     "voiceLogs": [
         {
+            "id": "LOG7796",
+            "timestamp": "12:29:56 PM",
+            "voiceText": "open inventory",
+            "success": true,
+            "message": "Opening inventory management view",
+            "actionType": "NAVIGATE"
+        },
+        {
             "id": "LOG4830",
             "timestamp": "11:40:30 AM",
             "voiceText": "mark Aarav present",
@@ -878,14 +886,6 @@
             "voiceText": "Aarav absent",
             "success": true,
             "message": "Aarav Sharma marked as absent",
-            "actionType": "MARK_ATTENDANCE"
-        },
-        {
-            "id": "LOG5508",
-            "timestamp": "09:05:08 AM",
-            "voiceText": "Abhi irukkan",
-            "success": true,
-            "message": "Attendance marked for Abhi as present",
             "actionType": "MARK_ATTENDANCE"
         }
     ]

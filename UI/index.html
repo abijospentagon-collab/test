@@ -1316,7 +1316,13 @@
         isRecording: false,
         voiceOverlayOpen: false,
         voiceTranscript: '',
-        voiceAction: null
+        voiceAction: null,
+        voiceLogs: [],
+        reminders: [
+          { id: "R1", text: "Confirm lunch menu with Ramesh", completed: false },
+          { id: "R2", text: "Review LKG Origami lesson plans", completed: false },
+          { id: "R3", text: "Order Non-Toxic hand wash bottles", completed: true }
+        ]
       }
 
       // Helper to trigger rendering on state changes
@@ -1328,6 +1334,11 @@
         }
         renderApp()
         
+        // Sync state to localStorage
+        try {
+          localStorage.setItem('sorted_os_vanilla_state', JSON.stringify(state));
+        } catch(e) {}
+
         // Sync state to PHP backend
         fetch('api/state.php', {
           method: 'POST',
@@ -1495,6 +1506,20 @@
           `
         }).join('') || `<div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem">Attendance not marked today.</div>`
 
+        // Reminders list HTML
+        const remindersHtml = state.reminders.map(r => `
+          <div 
+            onclick="toggleReminder('${r.id}')"
+            class="dashboard-list-item glass-panel-interactive" 
+            style="padding: 0.65rem 0.85rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+          >
+            <span style="font-size: 0.85rem; ${r.completed ? 'text-decoration: line-through; color: var(--text-muted)' : ''}">
+              ${r.text}
+            </span>
+            <i data-lucide="${r.completed ? 'check-square-2' : 'square'}" style="color: ${r.completed ? 'var(--accent)' : 'var(--text-muted)'}; width: 15px; height: 15px;"></i>
+          </div>
+        `).join('') || `<div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem">No reminders.</div>`
+
         return `
           <div class="fade-in" style="display: flex; flex-direction: column; gap: 2rem">
             
@@ -1621,21 +1646,10 @@
                 <div class="glass-panel" style="padding: 1.5rem">
                   <div class="dashboard-panel-header">
                     <h2 class="dashboard-panel-title">Admin Reminders</h2>
-                    <span class="badge badge-primary">SaaS Log</span>
+                    <span class="badge badge-primary" style="cursor: pointer; user-select: none;" onclick="addReminderPrompt()">+ Add Reminder</span>
                   </div>
                   <div class="dashboard-list">
-                    <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
-                      <span style="font-size: 0.85rem">Confirm lunch menu with Ramesh</span>
-                      <i data-lucide="check" style="color: var(--accent)"></i>
-                    </div>
-                    <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
-                      <span style="font-size: 0.85rem">Review LKG Origami lesson plans</span>
-                      <i data-lucide="check" style="color: var(--accent)"></i>
-                    </div>
-                    <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
-                      <span style="font-size: 0.85rem; text-decoration: line-through; color: var(--text-muted)">Order Non-Toxic hand wash bottles</span>
-                      <i data-lucide="check" style="color: var(--text-muted)"></i>
-                    </div>
+                    ${remindersHtml}
                   </div>
                 </div>
 
@@ -4101,6 +4115,490 @@
         }
       }
 
+      // Client-side Voice NLP Parser fallback
+      function parseVoiceCommandLocally(transcript) {
+        const rawText = transcript.toLowerCase().trim();
+        const today = new Date().toISOString().split('T')[0];
+
+        const result = {
+          success: false,
+          message: "Command not recognized. Please try again or use standard templates.",
+          speechText: "Sorry, I could not understand that command.",
+          action: null
+        };
+
+        // Deep clone state
+        const updatedDb = JSON.parse(JSON.stringify(state));
+        if (!updatedDb.students) updatedDb.students = [];
+        if (!updatedDb.staff) updatedDb.staff = [];
+        if (!updatedDb.inventory) updatedDb.inventory = [];
+        if (!updatedDb.tasks) updatedDb.tasks = [];
+        if (!updatedDb.attendance) updatedDb.attendance = { students: [], staff: [] };
+        if (!updatedDb.voiceLogs) updatedDb.voiceLogs = [];
+
+        // Helper function to format time
+        const getFormattedTime = () => {
+          const d = new Date();
+          let hours = d.getHours();
+          const minutes = d.getMinutes().toString().padStart(2, '0');
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12;
+          hours = hours ? hours : 12;
+          return `${hours.toString().padStart(2, '0')}:${minutes}:${d.getSeconds().toString().padStart(2, '0')} ${ampm}`;
+        };
+
+        // 1. MARK ATTENDANCE FOR CLASS
+        if (rawText.includes('mark attendance for') || rawText.includes('mark attendance') || rawText.includes('take attendance')) {
+          let targetClass = 'LKG';
+          let targetTamilClass = 'எல்.கே.ஜி';
+
+          if (rawText.includes('nursery')) {
+            targetClass = 'Nursery';
+            targetTamilClass = 'நர்சரி';
+          } else if (rawText.includes('play group') || rawText.includes('playgroup')) {
+            targetClass = 'Play Group';
+            targetTamilClass = 'ப்ளே குரூப்';
+          } else if (rawText.includes('ukg')) {
+            targetClass = 'UKG';
+            targetTamilClass = 'யு.கே.ஜி';
+          }
+
+          const classStudents = updatedDb.students.filter(
+            (s) => s.status === 'Active' && s.class === targetClass
+          );
+
+          if (classStudents.length > 0) {
+            classStudents.forEach((student) => {
+              const existingRecord = updatedDb.attendance.students.find(
+                (item) => item.date === today && item.studentId === student.id
+              );
+              if (existingRecord) {
+                existingRecord.status = 'Present';
+                existingRecord.remarks = 'Voice command (Local Fallback)';
+              } else {
+                updatedDb.attendance.students.push({
+                  date: today,
+                  studentId: student.id,
+                  status: 'Present',
+                  remarks: 'Voice command (Local Fallback)'
+                });
+              }
+            });
+
+            result.success = true;
+            result.message = `Marked attendance for all students in class ${targetClass}.`;
+            result.speechText = state.languagePreference === 'Tamil'
+              ? `${targetTamilClass} வகுப்பிற்கு வருகை பதிவு செய்யப்பட்டது.`
+              : `Attendance marked successfully for class ${targetClass}.`;
+            result.action = {
+              type: "MARK_ATTENDANCE",
+              targetClass: targetClass
+            };
+          } else {
+            result.message = `No active students found in class ${targetClass}.`;
+            result.speechText = state.languagePreference === 'Tamil'
+              ? `${targetTamilClass} வகுப்பில் மாணவர்கள் யாரும் இல்லை.`
+              : `No active students found in class ${targetClass}.`;
+          }
+        }
+
+        // 2. CREATE TASK
+        else if (/create\s+(a\s+)?task|assign\s+(a\s+)?task|new\s+task|add\s+(a\s+|new\s+)?task|set\s+(a\s+)?task/i.test(rawText)) {
+          let assigneeId = 'ST203'; // Savitri Devi
+          let assigneeName = 'Savitri Devi';
+          let assigneeTamil = 'சாவித்திரி தேவி';
+
+          if (/ramesh|kitchen|maintenance/i.test(rawText)) {
+            assigneeId = 'ST205';
+            assigneeName = 'Ramesh Kumar';
+            assigneeTamil = 'ரமேஷ் குமார்';
+          } else if (/priya|lkg teacher/i.test(rawText)) {
+            assigneeId = 'ST201';
+            assigneeName = 'Priya Sen';
+            assigneeTamil = 'பிரியா சென்';
+          } else if (/anita|ukg teacher/i.test(rawText)) {
+            assigneeId = 'ST204';
+            assigneeName = 'Anita Kapoor';
+            assigneeTamil = 'அனிதா கபூர்';
+          } else if (/admin|rohan/i.test(rawText)) {
+            assigneeId = 'ST202';
+            assigneeName = 'Rohan Das';
+            assigneeTamil = 'ரோஹன் தாஸ்';
+          }
+
+          let taskTitle = '';
+          const titleMatch = transcript.match(/task\s+(?:for|to|titled?|called|named)\s+(?:\w+\s+)?(.+)/i);
+          if (titleMatch) {
+            const candidate = titleMatch[1].replace(/\b(savitri|ramesh|priya|anita|rohan|kumar|devi|sen|kapoor|das)\b/ig, '').trim();
+            if (candidate.length > 3) {
+              taskTitle = candidate.charAt(0).toUpperCase() + candidate.slice(1);
+            }
+          }
+
+          if (!taskTitle) {
+            const afterName = transcript.replace(/^.*?(ramesh|savitri|priya|anita|rohan)\s*/i, '').trim();
+            if (afterName.length > 3 && afterName.toLowerCase() !== transcript.toLowerCase()) {
+              taskTitle = afterName.charAt(0).toUpperCase() + afterName.slice(1);
+            }
+          }
+
+          if (!taskTitle || taskTitle.length < 3) {
+            taskTitle = 'General housekeeping';
+          }
+
+          const newTask = {
+            id: "T" + Math.floor(100 + Math.random() * 900),
+            title: taskTitle,
+            description: "Voice-assigned task (Local): " + taskTitle,
+            assignedTo: assigneeId,
+            priority: "Medium",
+            status: "Pending",
+            dueDate: today,
+            category: "Cleaning"
+          };
+
+          updatedDb.tasks.push(newTask);
+
+          result.success = true;
+          result.message = `Task "${taskTitle}" created and assigned to ${assigneeName}.`;
+          result.speechText = state.languagePreference === 'Tamil'
+            ? `பணி உருவாக்கப்பட்டு ${assigneeTamil} விடம் ஒப்படைக்கப்பட்டது.`
+            : `Task created and assigned to ${assigneeName}.`;
+          result.action = {
+            type: "CREATE_TASK",
+            task: newTask
+          };
+        }
+
+        // 3. ADD INVENTORY
+        else if (/add\s+(an?\s+)?(inventory|material|item)|restock/i.test(rawText)) {
+          let itemName = 'Crayons Set';
+          const matchKeywords = ['inventory', 'material', 'item'];
+
+          for (const kw of matchKeywords) {
+            const idx = rawText.indexOf(kw);
+            if (idx !== -1) {
+              const rawItem = transcript.substring(idx + kw.length).trim();
+              if (rawItem.length > 2) {
+                itemName = rawItem.charAt(0).toUpperCase() + rawItem.slice(1);
+                break;
+              }
+            }
+          }
+
+          const itemIndex = updatedDb.inventory.findIndex(
+            (item) => item.name.toLowerCase() === itemName.toLowerCase()
+          );
+
+          if (itemIndex > -1) {
+            updatedDb.inventory[itemIndex].stockLevel += 10;
+            result.message = `Updated stock level of "${updatedDb.inventory[itemIndex].name}" (+10).`;
+          } else {
+            const newItem = {
+              id: "INV" + Math.floor(100 + Math.random() * 900),
+              name: itemName,
+              category: "Replaceable items",
+              stockLevel: 10,
+              minStockLevel: 5,
+              unit: "units"
+            };
+            updatedDb.inventory.push(newItem);
+            result.message = `Added new item "${itemName}" to inventory ledger with 10 units.`;
+          }
+
+          result.success = true;
+          result.speechText = state.languagePreference === 'Tamil'
+            ? `சரக்கு புத்தகத்தில் ${itemName} சேர்க்கப்பட்டது.`
+            : `Inventory ledger updated successfully for ${itemName}.`;
+          result.action = {
+            type: "ADD_INVENTORY",
+            itemName: itemName
+          };
+        }
+
+        // 4. NAVIGATION
+        else if (/go\s+to|open\s+(the\s+)?|show\s+(me\s+)?|navigate\s+to|switch\s+to/i.test(rawText)) {
+          let targetView = 'dashboard';
+          let viewName = 'Dashboard';
+          let viewTamil = 'முகப்பு';
+
+          if (rawText.includes('student')) {
+            targetView = 'students';
+            viewName = 'Students';
+            viewTamil = 'மாணவர்கள்';
+          } else if (rawText.includes('staff')) {
+            targetView = 'staff';
+            viewName = 'Staff Management';
+            viewTamil = 'பணியாளர்கள்';
+          } else if (rawText.includes('attendance')) {
+            targetView = 'attendance';
+            viewName = 'Attendance';
+            viewTamil = 'வருகை';
+          } else if (rawText.includes('task') || rawText.includes('board')) {
+            targetView = 'tasks';
+            viewName = 'Tasks Board';
+            viewTamil = 'பணிகள்';
+          } else if (rawText.includes('inventory') || rawText.includes('material')) {
+            targetView = 'inventory';
+            viewName = 'Inventory Ledger';
+            viewTamil = 'சரக்கு';
+          } else if (rawText.includes('cleaning') || rawText.includes('housekeeping')) {
+            targetView = 'cleaning';
+            viewName = 'Support & Cleaning';
+            viewTamil = 'சுத்தம்';
+          } else if (rawText.includes('lesson')) {
+            targetView = 'lessons';
+            viewName = 'Lesson Planning';
+            viewTamil = 'பாடத் திட்டம்';
+          } else if (rawText.includes('activit') || rawText.includes('event')) {
+            targetView = 'activities';
+            viewName = 'Activities & Events';
+            viewTamil = 'செயல்பாடுகள்';
+          } else if (rawText.includes('messag') || rawText.includes('chat') || rawText.includes('communication')) {
+            targetView = 'communication';
+            viewName = 'Communication';
+            viewTamil = 'தொடர்பு';
+          } else if (rawText.includes('setting')) {
+            targetView = 'settings';
+            viewName = 'Settings';
+            viewTamil = 'அமைப்புகள்';
+          } else if (rawText.includes('voice') || rawText.includes('portal') || rawText.includes('assistant')) {
+            targetView = 'voice-portal';
+            viewName = 'Voice Assistant Portal';
+            viewTamil = 'குரல் உதவியாளர்';
+          }
+
+          result.success = true;
+          result.message = `Navigated to ${viewName}.`;
+          result.speechText = state.languagePreference === 'Tamil'
+            ? `${viewTamil} பக்கத்திற்கு மாற்றப்படுகிறது.`
+            : `Switching to ${viewName} screen.`;
+          result.action = {
+            type: "NAVIGATE",
+            targetView: targetView
+          };
+        }
+
+        // 5. ADD A NEW STUDENT
+        else if (/add\s+(a\s+)?student|enroll\s+(a\s+)?student|register\s+(a\s+)?student|new\s+student|^add\s+(?!a\s|an\s|item|task|inventory|liquid|soap|glue|hand)([a-z]+)/i.test(rawText)) {
+          let studentName = 'New Student';
+          const nameMatch = transcript.match(/(?:named?|called)\s+([A-Za-z]+(?:\s+[A-Za-z]+)?)/i);
+          if (nameMatch) {
+            studentName = nameMatch[1].trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+          } else {
+            const addMatch = transcript.match(/^add\s+([A-Za-z]+(?:\s+[A-Za-z]+)?)/i);
+            if (addMatch) {
+              const candidate = addMatch[1].trim();
+              if (!/^(a|an|item|task|inventory|student|liquid|soap|glue|hand)$/i.test(candidate)) {
+                studentName = candidate.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+              }
+            }
+          }
+
+          let studentClass = 'LKG';
+          if (/nursery/i.test(rawText)) studentClass = 'Nursery';
+          else if (/play\s*group/i.test(rawText)) studentClass = 'Play Group';
+          else if (/ukg/i.test(rawText)) studentClass = 'UKG';
+          else if (/lkg/i.test(rawText)) studentClass = 'LKG';
+
+          const existingIds = updatedDb.students.map(s => s.id);
+          let maxId = 100;
+          existingIds.forEach(sid => {
+            const num = parseInt(sid.substring(1), 10);
+            if (!isNaN(num) && num > maxId) maxId = num;
+          });
+          const newId = 'S' + (maxId + 1);
+
+          const newStudent = {
+            id: newId,
+            name: studentName,
+            class: studentClass,
+            section: "A",
+            age: 4,
+            parentName: "Parent of " + studentName,
+            parentPhone: "+91 00000 00000",
+            email: studentName.toLowerCase().replace(/\s+/g, '.') + "@example.com",
+            status: "Active",
+            enrollmentDate: today
+          };
+
+          updatedDb.students.push(newStudent);
+
+          result.success = true;
+          result.message = `Added new student "${studentName}" (ID: ${newId}) to ${studentClass} class.`;
+          result.speechText = state.languagePreference === 'Tamil'
+            ? `${studentName} மாணவராக ${studentClass} வகுப்பில் சேர்க்கப்பட்டார்.`
+            : `Student ${studentName} has been enrolled successfully in class ${studentClass}.`;
+          result.action = {
+            type: "ADD_STUDENT",
+            student: newStudent
+          };
+        }
+
+        // 6. REMOVE STUDENT
+        else if (/remove\s+student|delete\s+student|deactivate\s+student|discharge\s+student/i.test(rawText)) {
+          let foundStudentIndex = -1;
+          const nameMatch = transcript.match(/(?:remove|delete|deactivate|discharge)\s+student\s+([A-Za-z]+)/i);
+
+          if (nameMatch) {
+            const targetName = nameMatch[1].toLowerCase().trim();
+            foundStudentIndex = updatedDb.students.findIndex((s) => {
+              const parts = s.name.toLowerCase().split(' ');
+              return parts.includes(targetName);
+            });
+          }
+
+          if (foundStudentIndex > -1) {
+            updatedDb.students[foundStudentIndex].status = 'Inactive';
+            const studentName = updatedDb.students[foundStudentIndex].name;
+            const studentId = updatedDb.students[foundStudentIndex].id;
+
+            result.success = true;
+            result.message = `Student ${studentName} has been deactivated.`;
+            result.speechText = state.languagePreference === 'Tamil'
+              ? `${studentName} மாணவர் பட்டியலிலிருந்து நீக்கப்பட்டார்.`
+              : `${studentName} has been removed from the active student list.`;
+            result.action = {
+              type: "REMOVE_STUDENT",
+              studentId: studentId
+            };
+          } else {
+            result.message = "Could not find a student to remove. Please say the student's first name clearly.";
+            result.speechText = state.languagePreference === 'Tamil'
+              ? "மாணவர் கண்டுபிடிக்கப்படவில்லை. தெளிவாக பெயர் சொல்லுங்கள்."
+              : "Student not found. Please say the name clearly.";
+          }
+        }
+
+        // 7. TASK STATUS UPDATE
+        else if (/mark\s+(.+)\s+(done|completed|in\s+progress|pending)/i.test(rawText) || /complete\s+task\s+(.+)/i.test(rawText)) {
+          let taskTitleQuery = '';
+          let targetStatus = 'Done';
+          let statusLabel = 'Done';
+          let statusTamil = 'முடிக்கப்பட்டது';
+
+          const matchDone = rawText.match(/mark\s+(.+)\s+(done|completed)/i);
+          const matchInProgress = rawText.match(/mark\s+(.+)\s+(in\s+progress)/i);
+          const matchPending = rawText.match(/mark\s+(.+)\s+(pending)/i);
+          const matchComplete = rawText.match(/complete\s+task\s+(.+)/i);
+
+          if (matchDone) {
+            taskTitleQuery = matchDone[1].trim();
+            targetStatus = 'Done';
+          } else if (matchInProgress) {
+            taskTitleQuery = matchInProgress[1].trim();
+            targetStatus = 'In Progress';
+            statusLabel = 'In Progress';
+            statusTamil = 'செயல்பாட்டில் உள்ளது';
+          } else if (matchPending) {
+            taskTitleQuery = matchPending[1].trim();
+            targetStatus = 'Pending';
+            statusLabel = 'Pending';
+            statusTamil = 'நிலுவையில் உள்ளது';
+          } else if (matchComplete) {
+            taskTitleQuery = matchComplete[1].trim();
+            targetStatus = 'Done';
+          }
+
+          const taskIndex = updatedDb.tasks.findIndex(
+            (t) => t.title.toLowerCase().includes(taskTitleQuery.toLowerCase()) || 
+                   taskTitleQuery.toLowerCase().includes(t.title.toLowerCase())
+          );
+
+          if (taskIndex > -1) {
+            updatedDb.tasks[taskIndex].status = targetStatus;
+            const title = updatedDb.tasks[taskIndex].title;
+            const taskId = updatedDb.tasks[taskIndex].id;
+
+            result.success = true;
+            result.message = `Task '${title}' status updated to '${statusLabel}'.`;
+            result.speechText = state.languagePreference === 'Tamil'
+              ? `பணி '${title}' ${statusTamil} என மாற்றப்பட்டது.`
+              : `Task ${title} has been updated to ${statusLabel}.`;
+            result.action = {
+              type: "UPDATE_TASK",
+              taskId: taskId,
+              status: targetStatus
+            };
+          }
+        }
+
+        // 8. INDIVIDUAL STUDENT ATTENDANCE BY NAME
+        else {
+          let foundStudentIndex = -1;
+          let studentStatus = 'Present';
+          let statusTamil = 'வருகை பதிவு செய்யப்பட்டது';
+          let statusEnglish = 'Present';
+
+          foundStudentIndex = updatedDb.students.findIndex((s) => {
+            if (s.status !== 'Active') return false;
+            const first = s.name.split(' ')[0].toLowerCase();
+            return rawText.includes(first);
+          });
+
+          if (foundStudentIndex > -1) {
+            const student = updatedDb.students[foundStudentIndex];
+            if (rawText.includes('absent') || 
+                rawText.includes('varala') || 
+                rawText.includes('varavillai') || 
+                rawText.includes('illa') || 
+                rawText.includes('leave')) {
+              studentStatus = 'Absent';
+              statusTamil = 'விடுப்பு பதிவு செய்யப்பட்டது';
+              statusEnglish = 'Absent';
+            }
+
+            const existingRecordIndex = updatedDb.attendance.students.findIndex(
+              (item) => item.date === today && item.studentId === student.id
+            );
+
+            if (existingRecordIndex > -1) {
+              updatedDb.attendance.students[existingRecordIndex].status = studentStatus;
+              updatedDb.attendance.students[existingRecordIndex].remarks = 'Voice command (Local Fallback)';
+            } else {
+              updatedDb.attendance.students.push({
+                date: today,
+                studentId: student.id,
+                status: studentStatus,
+                remarks: 'Voice command (Local Fallback)'
+              });
+            }
+
+            result.success = true;
+            result.message = `Marked student ${student.name} as ${studentStatus}.`;
+            result.speechText = state.languagePreference === 'Tamil'
+              ? `${student.name} ${statusTamil}.`
+              : `${student.name} marked as ${statusEnglish}.`;
+            result.action = {
+              type: "MARK_ATTENDANCE",
+              studentId: student.id,
+              status: studentStatus
+            };
+          }
+        }
+
+        // Log voice transaction
+        const newLog = {
+          id: "LOG" + Math.floor(1000 + Math.random() * 9000),
+          timestamp: getFormattedTime(),
+          voiceText: transcript,
+          success: result.success,
+          message: result.message,
+          actionType: result.action ? result.action.type : 'UNKNOWN'
+        };
+
+        updatedDb.voiceLogs.unshift(newLog);
+        updatedDb.voiceLogs = updatedDb.voiceLogs.slice(0, 30); // limit to 30 logs
+
+        return {
+          success: result.success,
+          message: result.message,
+          speechText: result.speechText,
+          action: result.action,
+          updatedData: updatedDb
+        };
+      }
+
       // Voice NLP parsing rules
       async function parseVoiceCommand(cmdText) {
         try {
@@ -4175,15 +4673,73 @@
           }
           
         } catch (err) {
-          console.error("Error matching voice command via PHP API:", err);
+          console.warn("Error matching voice command via PHP API, using local client-side parser fallback:", err);
+          
+          const data = parseVoiceCommandLocally(cmdText);
+          const actionLabel = data.success ? (data.action?.type ? data.action.type.replace(/_/g, ' ') : 'Action Recognized') : 'Intent Unrecognized';
+
           updateState({
             voiceAction: {
-              label: 'Connection Error',
-              description: 'Could not contact voice parsing API. Make sure PHP server is running.',
-              success: false,
+              label: actionLabel,
+              description: data.message + " (Local Mode)",
+              success: data.success,
               execute: null
             }
           });
+
+          if (data.success) {
+            // Speak response
+            if ('speechSynthesis' in window && data.speechText) {
+              window.speechSynthesis.cancel();
+              const utterance = new SpeechSynthesisUtterance(data.speechText);
+              utterance.lang = state.languagePreference === 'Tamil' ? 'ta-IN' : 'en-IN';
+              window.speechSynthesis.speak(utterance);
+            }
+
+            // Sync updated state to frontend
+            if (data.updatedData) {
+              updateState({
+                students: data.updatedData.students,
+                staff: data.updatedData.staff,
+                inventory: data.updatedData.inventory,
+                tasks: data.updatedData.tasks,
+                attendance: data.updatedData.attendance,
+                voiceLogs: data.updatedData.voiceLogs
+              });
+            }
+
+            // Navigate if action is NAVIGATE
+            if (data.action && data.action.type === 'NAVIGATE') {
+              updateState({ activeView: data.action.targetView });
+            }
+
+            // Auto-dismiss after 2 seconds
+            setTimeout(() => {
+              updateState({ voiceOverlayOpen: false, voiceAction: null, voiceTranscript: '' });
+            }, 2000);
+          } else {
+            // Auto-dismiss unrecognized after 3.5 seconds
+            setTimeout(() => {
+              updateState({ voiceOverlayOpen: false, voiceAction: null, voiceTranscript: '' });
+            }, 3500);
+          }
+        }
+      }
+
+      window.toggleReminder = function(id) {
+        const updated = state.reminders.map(r => r.id === id ? { ...r, completed: !r.completed } : r);
+        updateState({ reminders: updated });
+      }
+
+      window.addReminderPrompt = function() {
+        const text = prompt("Enter new reminder:");
+        if (text && text.trim()) {
+          const newReminder = {
+            id: "R" + Math.floor(Math.random() * 10000),
+            text: text.trim(),
+            completed: false
+          };
+          updateState({ reminders: [...state.reminders, newReminder] });
         }
       }
 
@@ -4301,16 +4857,29 @@
 
       // Fetch initial state on boot
       function bootApp() {
+        try {
+          const savedState = localStorage.getItem('sorted_os_vanilla_state');
+          if (savedState) {
+            state = { ...state, ...JSON.parse(savedState) };
+          }
+        } catch (e) {
+          console.warn("Could not load state from localStorage:", e);
+        }
+
         fetch('api/state.php')
           .then(res => res.json())
           .then(data => {
             if (data && !data.error) {
               state = { ...state, ...data, attendanceDate: new Date().toISOString().split('T')[0] }
+              try {
+                localStorage.setItem('sorted_os_vanilla_state', JSON.stringify(state));
+              } catch (e) {}
             }
             renderApp()
           })
           .catch(err => {
-            console.warn("Backend not active or error loading database, running in-memory mode.");
+            console.warn("Backend not active or error loading database, running with localStorage / in-memory fallback.");
+            state.attendanceDate = new Date().toISOString().split('T')[0];
             renderApp();
           });
       }
