@@ -1,0 +1,892 @@
+{
+    "activeView": "dashboard",
+    "students": [
+        {
+            "id": "S101",
+            "name": "Aarav Sharma",
+            "class": "LKG",
+            "section": "A",
+            "age": 4,
+            "parentName": "Rajesh Sharma",
+            "parentPhone": "+91 98765 43210",
+            "email": "rajesh@example.com",
+            "status": "Active",
+            "enrollmentDate": "2025-06-15"
+        },
+        {
+            "id": "S102",
+            "name": "Mira Patel",
+            "class": "UKG",
+            "section": "B",
+            "age": 5,
+            "parentName": "Sneha Patel",
+            "parentPhone": "+91 98765 43211",
+            "email": "sneha@example.com",
+            "status": "Active",
+            "enrollmentDate": "2024-06-10"
+        },
+        {
+            "id": "S103",
+            "name": "Kabir Singh",
+            "class": "Play Group",
+            "section": "A",
+            "age": 3,
+            "parentName": "Jaspreet Singh",
+            "parentPhone": "+91 98765 43212",
+            "email": "jaspreet@example.com",
+            "status": "Active",
+            "enrollmentDate": "2025-08-01"
+        },
+        {
+            "id": "S104",
+            "name": "Ananya Rao",
+            "class": "Nursery",
+            "section": "A",
+            "age": 3.5,
+            "parentName": "Vikram Rao",
+            "parentPhone": "+91 98765 43213",
+            "email": "vikram@example.com",
+            "status": "Active",
+            "enrollmentDate": "2025-07-20"
+        },
+        {
+            "id": "S105",
+            "name": "Reyansh Gupta",
+            "class": "LKG",
+            "section": "B",
+            "age": 4.5,
+            "parentName": "Amit Gupta",
+            "parentPhone": "+91 98765 43214",
+            "email": "amit@example.com",
+            "status": "Active",
+            "enrollmentDate": "2025-06-18"
+        },
+        {
+            "id": "S106",
+            "name": "Diya Iyer",
+            "class": "UKG",
+            "section": "A",
+            "age": 5.5,
+            "parentName": "Raman Iyer",
+            "parentPhone": "+91 98765 43215",
+            "email": "raman@example.com",
+            "status": "Inactive",
+            "enrollmentDate": "2024-06-12"
+        },
+        {
+            "id": "S107",
+            "name": "Zayan Khan",
+            "class": "Nursery",
+            "section": "B",
+            "age": 3.5,
+            "parentName": "Farhan Khan",
+            "parentPhone": "+91 98765 43216",
+            "email": "farhan@example.com",
+            "status": "Active",
+            "enrollmentDate": "2025-07-22"
+        },
+        {
+            "id": "S108",
+            "name": "Abhi Kumar",
+            "class": "LKG",
+            "section": "A",
+            "age": 4.5,
+            "parentName": "Surendra Kumar",
+            "parentPhone": "+91 98765 43217",
+            "email": "surendra@example.com",
+            "status": "Active",
+            "enrollmentDate": "2025-06-20"
+        },
+        {
+            "id": "S109",
+            "name": "John",
+            "class": "LKG",
+            "section": "A",
+            "age": 4,
+            "parentName": "Parent of John",
+            "parentPhone": "+91 00000 00000",
+            "email": "john@example.com",
+            "status": "Active",
+            "enrollmentDate": "2026-05-26"
+        },
+        {
+            "id": "S110",
+            "name": "Rachel",
+            "class": "LKG",
+            "section": "A",
+            "age": 4,
+            "parentName": "Parent of Rachel",
+            "parentPhone": "+91 00000 00000",
+            "email": "rachel@example.com",
+            "status": "Active",
+            "enrollmentDate": "2026-05-27"
+        },
+        {
+            "id": "S111",
+            "name": "Rachel",
+            "class": "LKG",
+            "section": "A",
+            "age": 4,
+            "parentName": "Parent of Rachel",
+            "parentPhone": "+91 00000 00000",
+            "email": "rachel@example.com",
+            "status": "Active",
+            "enrollmentDate": "2026-05-27"
+        },
+        {
+            "id": "S112",
+            "name": "Rachel",
+            "class": "LKG",
+            "section": "A",
+            "age": 4,
+            "parentName": "Parent of Rachel",
+            "parentPhone": "+91 00000 00000",
+            "email": "rachel@example.com",
+            "status": "Active",
+            "enrollmentDate": "2026-05-27"
+        }
+    ],
+    "staff": [
+        {
+            "id": "ST201",
+            "name": "Priya Sen",
+            "role": "Teacher",
+            "contact": "+91 99999 11111",
+            "email": "priya@sorted.edu",
+            "status": "Active",
+            "assignedArea": "LKG - Section A"
+        },
+        {
+            "id": "ST202",
+            "name": "Rohan Das",
+            "role": "Admin",
+            "contact": "+91 99999 22222",
+            "email": "rohan@sorted.edu",
+            "status": "Active",
+            "assignedArea": "Main Office"
+        },
+        {
+            "id": "ST203",
+            "name": "Savitri Devi",
+            "role": "Support Staff",
+            "contact": "+91 99999 33333",
+            "email": "savitri@sorted.edu",
+            "status": "Active",
+            "assignedArea": "Cleanliness & Play Areas"
+        },
+        {
+            "id": "ST204",
+            "name": "Anita Kapoor",
+            "role": "Teacher",
+            "contact": "+91 99999 44444",
+            "email": "anita@sorted.edu",
+            "status": "Active",
+            "assignedArea": "UKG - Section B"
+        },
+        {
+            "id": "ST205",
+            "name": "Ramesh Kumar",
+            "role": "Support Staff",
+            "contact": "+91 99999 55555",
+            "email": "ramesh@sorted.edu",
+            "status": "Active",
+            "assignedArea": "Kitchen & Maintenance"
+        }
+    ],
+    "inventory": [
+        {
+            "id": "INV301",
+            "name": "Safety Scissors",
+            "category": "Replaceable items",
+            "stockLevel": 25,
+            "minStockLevel": 5,
+            "unit": "units"
+        },
+        {
+            "id": "INV302",
+            "name": "Paper Glue Sticks",
+            "category": "Replaceable items",
+            "stockLevel": 4,
+            "minStockLevel": 8,
+            "unit": "sticks"
+        },
+        {
+            "id": "INV303",
+            "name": "Colored Chart Paper",
+            "category": "Teaching aids",
+            "stockLevel": 150,
+            "minStockLevel": 30,
+            "unit": "sheets"
+        },
+        {
+            "id": "INV304",
+            "name": "Non-Toxic Hand Wash",
+            "category": "Cleaning items",
+            "stockLevel": 3,
+            "minStockLevel": 5,
+            "unit": "bottles"
+        },
+        {
+            "id": "INV305",
+            "name": "Sketch Pens Set",
+            "category": "Replaceable items",
+            "stockLevel": 35,
+            "minStockLevel": 10,
+            "unit": "packs"
+        },
+        {
+            "id": "INV306",
+            "name": "Disinfectant Wipes",
+            "category": "Cleaning items",
+            "stockLevel": 12,
+            "minStockLevel": 4,
+            "unit": "tubs"
+        }
+    ],
+    "tasks": [
+        {
+            "id": "T401",
+            "title": "Sanitize Play Area Blocks",
+            "description": "Wipe down all plastic blocks in the Play Group area with disinfectant.",
+            "assignedTo": "ST203",
+            "priority": "High",
+            "status": "In Progress",
+            "dueDate": "2026-05-26",
+            "category": "Cleaning"
+        },
+        {
+            "id": "T402",
+            "title": "Review UKG Math Lesson Plans",
+            "description": "Make sure addition worksheets are ready for next week's classes.",
+            "assignedTo": "ST201",
+            "priority": "Medium",
+            "status": "In Progress",
+            "dueDate": "2026-05-28",
+            "category": "Teaching"
+        },
+        {
+            "id": "T403",
+            "title": "Repair Playground Swing Link",
+            "description": "Fix the squeaky and loose chain on the middle swing.",
+            "assignedTo": "ST205",
+            "priority": "High",
+            "status": "In Progress",
+            "dueDate": "2026-05-25",
+            "category": "Maintenance"
+        },
+        {
+            "id": "T404",
+            "title": "Stock Audit",
+            "description": "Audit stock levels for chart paper, scissors, and handwash.",
+            "assignedTo": "ST202",
+            "priority": "Low",
+            "status": "Done",
+            "dueDate": "2026-05-24",
+            "category": "General"
+        },
+        {
+            "id": "T373",
+            "title": "Clean the washroom",
+            "description": "Voice task assigned from PHP backend: Clean the washroom",
+            "assignedTo": "ST205",
+            "priority": "Medium",
+            "status": "Done",
+            "dueDate": "2026-05-26",
+            "category": "Cleaning"
+        },
+        {
+            "id": "T547",
+            "title": "Mop the dining area",
+            "description": "Voice task assigned from Groq NLP: Mop the dining area",
+            "assignedTo": "ST205",
+            "priority": "Medium",
+            "status": "Done",
+            "dueDate": "2026-05-27",
+            "category": "Cleaning"
+        },
+        {
+            "id": "T762",
+            "title": "General housekeeping",
+            "description": "Voice task assigned from Groq NLP: General housekeeping",
+            "assignedTo": "ST203",
+            "priority": "Medium",
+            "status": "Done",
+            "dueDate": "2026-05-27",
+            "category": "Cleaning"
+        },
+        {
+            "id": "T777",
+            "title": "General housekeeping",
+            "description": "Voice task assigned from Groq NLP: General housekeeping",
+            "assignedTo": "ST203",
+            "priority": "Medium",
+            "status": "Done",
+            "dueDate": "2026-05-27",
+            "category": "Cleaning"
+        },
+        {
+            "id": "T876",
+            "title": "Clean the washroom",
+            "description": "Voice task assigned from Groq NLP: Clean the washroom",
+            "assignedTo": "ST203",
+            "priority": "Medium",
+            "status": "In Progress",
+            "dueDate": "2026-05-27",
+            "category": "Cleaning"
+        },
+        {
+            "id": "T911",
+            "title": "Clean the dining area",
+            "description": "Voice task assigned from Groq NLP: Clean the dining area",
+            "assignedTo": "ST203",
+            "priority": "Medium",
+            "status": "Pending",
+            "dueDate": "2026-05-27",
+            "category": "Cleaning"
+        }
+    ],
+    "activities": [
+        {
+            "id": "ACT501",
+            "name": "Origami Animal Crafts",
+            "description": "Fold basic frogs and dogs using colorful chart paper.",
+            "class": "LKG",
+            "materials": [
+                "Colored Chart Paper",
+                "Safety Scissors"
+            ],
+            "scheduledDateTime": "2026-05-26T10:00",
+            "isFavorite": false
+        },
+        {
+            "id": "ACT502",
+            "name": "Alphabet Painting",
+            "description": "Finger paint the alphabet on paper sheets to learn shapes.",
+            "class": "Play Group",
+            "materials": [
+                "Colored Chart Paper"
+            ],
+            "scheduledDateTime": "2026-05-27T09:30",
+            "isFavorite": false
+        },
+        {
+            "id": "ACT503",
+            "name": "Collage Making",
+            "description": "Stick scrap papers to construct a house model.",
+            "class": "UKG",
+            "materials": [
+                "Colored Chart Paper",
+                "Paper Glue Sticks",
+                "Safety Scissors"
+            ],
+            "scheduledDateTime": "2026-05-28T11:00",
+            "isFavorite": false
+        }
+    ],
+    "lessons": [
+        {
+            "id": "LP701",
+            "class": "LKG",
+            "topic": "Intro to Primary Colors",
+            "duration": "45 mins",
+            "objective": "Identify Red, Blue, and Yellow in classroom objects.",
+            "activities": "Sing color song; Paint with primary colors; Sort colorful blocks.",
+            "materials": "Colored Chart Paper, Painting sets, Building Blocks"
+        },
+        {
+            "id": "LP702",
+            "class": "Play Group",
+            "topic": "Animal Noise Identification",
+            "duration": "30 mins",
+            "objective": "Imitate sounds of farm animals (cow, sheep, pig).",
+            "activities": "Read farm animal booklet; play audio clips; play animal matching cards.",
+            "materials": "Animal storybook, Audio player, Flash cards"
+        },
+        {
+            "id": "LP703",
+            "class": "UKG",
+            "topic": "Basic Geometry Shapes",
+            "duration": "50 mins",
+            "objective": "Draw and count edges of circle, square, triangle.",
+            "activities": "Draw shapes in sandboxes; Cut shapes out of cardboards; Build matching puzzles.",
+            "materials": "Safety Scissors, Sand trays, Shape puzzles"
+        }
+    ],
+    "events": [
+        {
+            "id": "EV601",
+            "title": "Summer Activity Camp",
+            "date": "2026-06-01",
+            "status": "Ongoing",
+            "description": "A week-long series of crafts, games, and music for children."
+        },
+        {
+            "id": "EV602",
+            "title": "Parent-Teacher Meeting",
+            "date": "2026-05-30",
+            "status": "Upcoming",
+            "description": "Discussion on progress cards and class promotions."
+        },
+        {
+            "id": "EV603",
+            "title": "Preschool Science Fair",
+            "date": "2026-05-25",
+            "status": "Ongoing",
+            "description": "Showcasing simple scientific models by UKG students."
+        }
+    ],
+    "messages": {
+        "templates": [
+            {
+                "type": "Event Reminder",
+                "subject": "Upcoming Science Fair",
+                "content": "Dear parents, please join us today at 11 AM for the Preschool Science Fair in the Main Hall. Your encouragement means the world to our little scientists!"
+            },
+            {
+                "type": "Fee Reminder",
+                "subject": "Monthly Tuition Fee Due",
+                "content": "Dear Parents, this is a friendly reminder that the tuition fee for the current month is due by the 5th. Kindly ignore if already paid. Thank you!"
+            },
+            {
+                "type": "Announcement",
+                "subject": "Emergency Weather Closure",
+                "content": "Dear Parents and Staff, school will remain closed tomorrow due to heavy rainfall warnings. Online engagement activities will be shared by teachers."
+            }
+        ],
+        "conversations": [
+            {
+                "studentId": "S101",
+                "parentName": "Rajesh Sharma",
+                "studentName": "Aarav Sharma",
+                "messages": [
+                    {
+                        "sender": "parent",
+                        "text": "Hello Admin, will Aarav have his medical checkup tomorrow?",
+                        "timestamp": "2026-05-24T14:30:00"
+                    },
+                    {
+                        "sender": "admin",
+                        "text": "Yes, Rajesh. The medical team will be visiting during the morning session. Please ensure he has his health card.",
+                        "timestamp": "2026-05-24T15:00:00"
+                    },
+                    {
+                        "sender": "admin",
+                        "text": "ok",
+                        "timestamp": "2026-05-27T08:14:13.525Z"
+                    }
+                ]
+            },
+            {
+                "studentId": "S102",
+                "parentName": "Sneha Patel",
+                "studentName": "Mira Patel",
+                "messages": [
+                    {
+                        "sender": "admin",
+                        "text": "Hello Sneha, we noticed Mira has a mild cough today. Please let us know if she requires medication.",
+                        "timestamp": "2026-05-25T11:20:00"
+                    },
+                    {
+                        "sender": "parent",
+                        "text": "Thank you for the update. I have placed a cough syrup in her bag, please give her 5ml after lunch.",
+                        "timestamp": "2026-05-25T11:45:00"
+                    }
+                ]
+            }
+        ]
+    },
+    "attendance": {
+        "students": [
+            {
+                "date": "2026-05-25",
+                "studentId": "S101",
+                "status": "Present",
+                "remarks": ""
+            },
+            {
+                "date": "2026-05-25",
+                "studentId": "S102",
+                "status": "Present",
+                "remarks": ""
+            },
+            {
+                "date": "2026-05-25",
+                "studentId": "S103",
+                "status": "Half Day",
+                "remarks": "Doctor appointment"
+            },
+            {
+                "date": "2026-05-25",
+                "studentId": "S104",
+                "status": "Absent",
+                "remarks": "Fever"
+            },
+            {
+                "date": "2026-05-25",
+                "studentId": "S105",
+                "status": "Present",
+                "remarks": ""
+            },
+            {
+                "date": "2026-05-25",
+                "studentId": "S107",
+                "status": "Early Departure",
+                "remarks": "Picked up by mother at 12 PM"
+            },
+            {
+                "date": "2026-05-26",
+                "studentId": "S108",
+                "status": "Present",
+                "remarks": "Voice command (PHP Backend)"
+            },
+            {
+                "date": "2026-05-27",
+                "studentId": "S110",
+                "status": "Present",
+                "remarks": "Voice command (PHP Backend)"
+            },
+            {
+                "date": "2026-05-27",
+                "studentId": "S108",
+                "status": "Present",
+                "remarks": "Voice command (Groq API)"
+            },
+            {
+                "date": "2026-05-27",
+                "studentId": "S101",
+                "status": "Present",
+                "remarks": "Voice command (Groq API)"
+            }
+        ],
+        "staff": [
+            {
+                "date": "2026-05-25",
+                "staffId": "ST201",
+                "checkIn": "08:15 AM",
+                "checkOut": "",
+                "status": "Present"
+            },
+            {
+                "date": "2026-05-25",
+                "staffId": "ST202",
+                "checkIn": "07:55 AM",
+                "checkOut": "",
+                "status": "Present"
+            },
+            {
+                "date": "2026-05-25",
+                "staffId": "ST203",
+                "checkIn": "08:00 AM",
+                "checkOut": "",
+                "status": "Present"
+            },
+            {
+                "date": "2026-05-25",
+                "staffId": "ST204",
+                "checkIn": "08:20 AM",
+                "checkOut": "",
+                "status": "Present"
+            },
+            {
+                "date": "2026-05-25",
+                "staffId": "ST205",
+                "checkIn": "",
+                "checkOut": "",
+                "status": "Absent"
+            },
+            {
+                "date": "2026-05-27",
+                "staffId": "ST201",
+                "status": "Present",
+                "checkIn": "08:00 AM",
+                "checkOut": ""
+            },
+            {
+                "date": "2026-05-27",
+                "staffId": "ST202",
+                "status": "Present",
+                "checkIn": "08:00 AM",
+                "checkOut": ""
+            },
+            {
+                "date": "2026-05-27",
+                "staffId": "ST203",
+                "status": "Present",
+                "checkIn": "08:00 AM",
+                "checkOut": ""
+            },
+            {
+                "date": "2026-05-27",
+                "staffId": "ST204",
+                "status": "Present",
+                "checkIn": "08:00 AM",
+                "checkOut": ""
+            },
+            {
+                "date": "2026-05-27",
+                "staffId": "ST205",
+                "status": "Present",
+                "checkIn": "08:00 AM",
+                "checkOut": ""
+            }
+        ]
+    },
+    "cleaningLanguage": "English",
+    "activeChatIndex": 1,
+    "attendanceDate": "2026-05-27",
+    "attendanceTab": "children",
+    "attendanceClassFilter": "All",
+    "studentClassFilter": "LKG",
+    "staffRoleFilter": "All",
+    "taskPriorityFilter": "All",
+    "taskAssigneeFilter": "All",
+    "inventoryCategoryFilter": "All",
+    "lessonClassFilter": "All",
+    "activitiesTab": "activities",
+    "isRecording": false,
+    "voiceOverlayOpen": false,
+    "voiceTranscript": "",
+    "voiceAction": null,
+    "voiceLogs": [
+        {
+            "id": "LOG4830",
+            "timestamp": "11:40:30 AM",
+            "voiceText": "mark Aarav present",
+            "success": true,
+            "message": "Aarav Sharma has been marked as present.",
+            "actionType": "MARK_ATTENDANCE"
+        },
+        {
+            "id": "LOG9410",
+            "timestamp": "10:10:10 AM",
+            "voiceText": "clean the washroom task in progress report",
+            "success": true,
+            "message": "Task 'Clean the washroom' status updated to 'In Progress'.",
+            "actionType": "UPDATE_TASK"
+        },
+        {
+            "id": "LOG9356",
+            "timestamp": "10:09:16 AM",
+            "voiceText": "mark the task general housekeeping done",
+            "success": true,
+            "message": "Task 'General housekeeping' marked as done",
+            "actionType": "UPDATE_TASK"
+        },
+        {
+            "id": "LOG9346",
+            "timestamp": "10:09:06 AM",
+            "voiceText": "mark the task general",
+            "success": true,
+            "message": "The task 'General housekeeping' has been marked as done.",
+            "actionType": "UPDATE_TASK"
+        },
+        {
+            "id": "LOG9341",
+            "timestamp": "10:09:01 AM",
+            "voiceText": "mark the",
+            "success": true,
+            "message": "To mark attendance, please specify the class or student name.",
+            "actionType": "MARK_ATTENDANCE"
+        },
+        {
+            "id": "LOG9261",
+            "timestamp": "10:07:41 AM",
+            "voiceText": "mark clean the washroom done",
+            "success": true,
+            "message": "Task 'Clean the washroom' has been marked as done",
+            "actionType": "UPDATE_TASK"
+        },
+        {
+            "id": "LOG8937",
+            "timestamp": "10:02:17 AM",
+            "voiceText": "mark clean the washroom done",
+            "success": true,
+            "message": "Task 'Clean the washroom' has been marked as done.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG8911",
+            "timestamp": "10:01:51 AM",
+            "voiceText": "mark mock the dining area done",
+            "success": true,
+            "message": "Task to clean the dining area has been marked as completed.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG8876",
+            "timestamp": "10:01:16 AM",
+            "voiceText": "mark clean the washroom done",
+            "success": true,
+            "message": "Task to clean the washroom has been marked as completed.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7971",
+            "timestamp": "09:46:11 AM",
+            "voiceText": "create new task",
+            "success": true,
+            "message": "A new task has been created for general housekeeping.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7780",
+            "timestamp": "09:43:00 AM",
+            "voiceText": "add new task for Priya",
+            "success": true,
+            "message": "A new task has been created for Priya Sen.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7779",
+            "timestamp": "09:42:59 AM",
+            "voiceText": "assign task to Ramesh",
+            "success": true,
+            "message": "Task assigned to Ramesh Kumar",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7778",
+            "timestamp": "09:42:58 AM",
+            "voiceText": "set a task",
+            "success": true,
+            "message": "A new task has been created for general housekeeping.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7777",
+            "timestamp": "09:42:57 AM",
+            "voiceText": "create task",
+            "success": true,
+            "message": "A new task has been created for general housekeeping and assigned to Savitri Devi.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7762",
+            "timestamp": "09:42:42 AM",
+            "voiceText": "add new task",
+            "success": true,
+            "message": "A new task has been created for general housekeeping.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7656",
+            "timestamp": "09:40:56 AM",
+            "voiceText": "add new task",
+            "success": false,
+            "message": "Unable to create task as no details were provided. Please provide task title and assignee.",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG7484",
+            "timestamp": "09:38:04 AM",
+            "voiceText": "inventory open Pannu",
+            "success": true,
+            "message": "Opening inventory management view.",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7473",
+            "timestamp": "09:37:53 AM",
+            "voiceText": "dashboard open panel",
+            "success": true,
+            "message": "Opening the dashboard panel",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7442",
+            "timestamp": "09:37:22 AM",
+            "voiceText": "settings open karna hai",
+            "success": true,
+            "message": "Opening settings",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7410",
+            "timestamp": "09:36:50 AM",
+            "voiceText": "housekeeping open",
+            "success": true,
+            "message": "Opening housekeeping view",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7387",
+            "timestamp": "09:36:27 AM",
+            "voiceText": "open lesson planning",
+            "success": true,
+            "message": "Opening lesson planning view",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7381",
+            "timestamp": "09:36:21 AM",
+            "voiceText": "open Task boards",
+            "success": true,
+            "message": "Opening task boards",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7372",
+            "timestamp": "09:36:12 AM",
+            "voiceText": "open staff time sheet",
+            "success": true,
+            "message": "Opening staff time sheet",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG7342",
+            "timestamp": "09:35:42 AM",
+            "voiceText": "attendance open",
+            "success": true,
+            "message": "Attendance view opened",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG6955",
+            "timestamp": "09:29:15 AM",
+            "voiceText": "open inventory",
+            "success": true,
+            "message": "Opening inventory view",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG5555",
+            "timestamp": "09:05:55 AM",
+            "voiceText": "go to inventory",
+            "success": true,
+            "message": "Navigating to the inventory page",
+            "actionType": "NAVIGATE"
+        },
+        {
+            "id": "LOG5547",
+            "timestamp": "09:05:47 AM",
+            "voiceText": "create a task for Ramesh mop the dining area",
+            "success": true,
+            "message": "Task created for Ramesh to mop the dining area",
+            "actionType": "CREATE_TASK"
+        },
+        {
+            "id": "LOG5530",
+            "timestamp": "09:05:30 AM",
+            "voiceText": "add student Rachel",
+            "success": true,
+            "message": "Student Rachel has been added to LKG class",
+            "actionType": "ADD_STUDENT"
+        },
+        {
+            "id": "LOG5520",
+            "timestamp": "09:05:20 AM",
+            "voiceText": "Aarav absent",
+            "success": true,
+            "message": "Aarav Sharma marked as absent",
+            "actionType": "MARK_ATTENDANCE"
+        },
+        {
+            "id": "LOG5508",
+            "timestamp": "09:05:08 AM",
+            "voiceText": "Abhi irukkan",
+            "success": true,
+            "message": "Attendance marked for Abhi as present",
+            "actionType": "MARK_ATTENDANCE"
+        }
+    ]
+}

@@ -1,0 +1,4325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sorted - AI-Powered Preschool Management SaaS</title>
+    <meta name="description" content="Sorted is a voice-activated preschool operating system that centralizes daily operations, including attendance, tasks, inventory, and communication." />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+      /* CSS Reset and Global Variables */
+      :root {
+        --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+        /* HSL Colors */
+        --bg-app: hsl(224, 71%, 4%);
+        --bg-sidebar: hsl(222, 47%, 7%);
+        --bg-glass: rgba(15, 23, 42, 0.65);
+        --bg-glass-hover: rgba(30, 41, 59, 0.8);
+        --border-glass: rgba(255, 255, 255, 0.07);
+        --border-glass-focus: rgba(124, 58, 237, 0.4);
+        
+        --primary: hsl(263, 85%, 63%);
+        --primary-glow: rgba(139, 92, 246, 0.35);
+        --primary-hover: hsl(263, 85%, 55%);
+        --accent: hsl(160, 84%, 45%);
+        --accent-glow: rgba(16, 185, 129, 0.2);
+        --accent-hover: hsl(160, 84%, 39%);
+        --warning: hsl(35, 92%, 55%);
+        --danger: hsl(342, 85%, 55%);
+        --danger-glow: rgba(244, 63, 94, 0.2);
+
+        --text-primary: hsl(210, 40%, 98%);
+        --text-secondary: hsl(215, 20%, 65%);
+        --text-muted: hsl(215, 16%, 47%);
+
+        --radius-sm: 8px;
+        --radius-md: 14px;
+        --radius-lg: 20px;
+        --radius-full: 9999px;
+
+        --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+        --shadow-md: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
+        --shadow-lg: 0 16px 40px -10px rgba(0, 0, 0, 0.8);
+        --shadow-glow: 0 0 20px 2px var(--primary-glow);
+        
+        --transition-fast: 0.15s ease;
+        --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-glass) transparent;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-glass);
+        border-radius: var(--radius-full);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--bg-app);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        line-height: 1.5;
+        background-image: 
+          radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+          radial-gradient(at 50% 50%, rgba(30, 41, 59, 0.3) 0px, transparent 80%);
+      }
+
+      /* Layout Framework */
+      .app-container {
+        display: flex;
+        width: 100%;
+        position: relative;
+        min-height: 100vh;
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 2.5rem;
+        margin-left: 280px; /* Width of Sidebar */
+        min-height: 100vh;
+        transition: margin-left var(--transition-normal);
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      @media (max-width: 1024px) {
+        .main-content {
+          margin-left: 80px;
+          padding: 1.5rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .main-content {
+          margin-left: 0;
+          padding: 1rem;
+          padding-bottom: 5rem;
+        }
+      }
+
+      /* Glassmorphism panel */
+      .glass-panel {
+        background: var(--bg-glass);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-glass);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
+      }
+
+      .glass-panel-interactive:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+      }
+
+      /* Sidebar Styling */
+      .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: var(--bg-sidebar);
+        border-right: 1px solid var(--border-glass);
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        z-index: 100;
+        transition: width var(--transition-normal);
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+      }
+
+      .sidebar-logo-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 1.5rem;
+        font-family: var(--font-display);
+        box-shadow: var(--shadow-glow);
+      }
+
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+      }
+
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        overflow-y: auto;
+        flex: 1;
+        padding-right: 0.25rem;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
+        cursor: pointer;
+        border: 1px solid transparent;
+      }
+
+      .sidebar-link:hover {
+        color: var(--text-primary);
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+
+      .sidebar-link.active {
+        color: white;
+        background: linear-gradient(to right, rgba(139, 92, 246, 0.15), rgba(16, 185, 129, 0.03));
+        border-color: rgba(139, 92, 246, 0.2);
+        box-shadow: inset 3px 0 0 var(--primary);
+      }
+
+      .sidebar-link-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .sidebar-footer {
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-glass);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .sidebar-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, var(--primary-hover), var(--primary-glow));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+      }
+
+      .sidebar-user-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-user-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .sidebar-user-role {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      @media (max-width: 1024px) {
+        .sidebar {
+          width: 80px;
+          padding: 2rem 0.75rem;
+          align-items: center;
+        }
+        .sidebar-logo-text, .sidebar-user-info, .sidebar-link span {
+          display: none;
+        }
+        .sidebar-link {
+          justify-content: center;
+          padding: 0.85rem;
+        }
+        .sidebar-header, .sidebar-footer {
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .sidebar {
+          width: 100%;
+          height: 60px;
+          position: fixed;
+          bottom: 0;
+          top: auto;
+          left: 0;
+          flex-direction: row;
+          padding: 0.5rem 1rem;
+          border-right: none;
+          border-top: 1px solid var(--border-glass);
+          background-color: var(--bg-sidebar);
+          justify-content: space-around;
+          box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+        }
+        .sidebar-header, .sidebar-footer {
+          display: none;
+        }
+        .sidebar-nav {
+          flex-direction: row;
+          width: 100%;
+          justify-content: space-between;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+        .sidebar-nav::-webkit-scrollbar {
+          display: none;
+        }
+        .sidebar-link {
+          flex-direction: column;
+          padding: 0.25rem 0.5rem;
+          gap: 0.15rem;
+          font-size: 0.65rem;
+          flex: 1;
+          min-width: 50px;
+        }
+        .sidebar-link.active {
+          box-shadow: none;
+          border-color: transparent;
+          color: var(--primary);
+        }
+      }
+
+      /* Page Header */
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 1rem;
+      }
+
+      .page-title-area {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .page-title {
+        font-family: var(--font-display);
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      /* Dashboard Summary Widgets */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      @media (max-width: 1200px) {
+        .dashboard-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+      }
+
+      .stat-card {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, var(--stat-glow-color, rgba(139, 92, 246, 0.05)) 0%, transparent 70%);
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        z-index: 1;
+      }
+
+      .stat-info {
+        display: flex;
+        flex-direction: column;
+        z-index: 1;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-value {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-top: 0.15rem;
+        color: var(--text-primary);
+      }
+
+      .stat-subtext {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+      }
+
+      /* Secondary Dashboard Row */
+      .dashboard-main-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      @media (max-width: 1024px) {
+        .dashboard-main-row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .dashboard-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-glass);
+      }
+
+      .dashboard-panel-title {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      .dashboard-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .dashboard-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 1rem;
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-glass);
+      }
+
+      .dashboard-list-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      /* Button Styles */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.25rem;
+        font-family: var(--font-sans);
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        box-shadow: 0 4px 14px var(--primary-glow);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px var(--primary-glow);
+        background: var(--primary-hover);
+      }
+
+      .btn-secondary {
+        background: var(--bg-glass);
+        border-color: var(--border-glass);
+        color: var(--text-primary);
+      }
+
+      .btn-secondary:hover {
+        background: var(--bg-glass-hover);
+        border-color: rgba(255, 255, 255, 0.15);
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, var(--danger), #e11d48);
+        box-shadow: 0 4px 14px var(--danger-glow);
+      }
+
+      .btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px var(--danger-glow);
+      }
+
+      .btn-sm {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.8rem;
+        border-radius: var(--radius-sm);
+      }
+
+      /* Data Tables */
+      .table-container {
+        overflow-x: auto;
+        width: 100%;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+      }
+
+      .data-table th {
+        padding: 1rem 1.25rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-glass);
+        background: rgba(255, 255, 255, 0.01);
+      }
+
+      .data-table td {
+        padding: 1rem 1.25rem;
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--border-glass);
+        color: var(--text-primary);
+        vertical-align: middle;
+      }
+
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .data-table tr:hover td {
+        background: rgba(255, 255, 255, 0.015);
+      }
+
+      /* Status Badges */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.65rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .badge-active {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+
+      .badge-inactive {
+        background: rgba(244, 63, 94, 0.15);
+        color: #fb7185;
+        border: 1px solid rgba(244, 63, 94, 0.3);
+      }
+
+      .badge-warning {
+        background: rgba(217, 119, 6, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(217, 119, 6, 0.3);
+      }
+
+      .badge-primary {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+      }
+
+      /* Forms & Inputs */
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        width: 100%;
+      }
+
+      .form-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+
+      .form-control {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--border-glass);
+        border-radius: var(--radius-sm);
+        padding: 0.65rem 1rem;
+        color: white;
+        font-family: var(--font-sans);
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      }
+
+      .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-glow);
+      }
+
+      .form-control::placeholder {
+        color: var(--text-muted);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      @media (max-width: 640px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Modals */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(4, 6, 12, 0.75);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        width: 100%;
+        max-width: 540px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        animation: modalEnter var(--transition-normal);
+      }
+
+      @keyframes modalEnter {
+        from {
+          opacity: 0;
+          transform: scale(0.95) translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-title {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+
+      .modal-close-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem;
+        border-radius: var(--radius-sm);
+      }
+
+      .modal-close-btn:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+      }
+
+      /* Kanban Board */
+      .kanban-board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      @media (max-width: 1024px) {
+        .kanban-board {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .kanban-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
+        min-height: 500px;
+      }
+
+      .kanban-column-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+
+      .kanban-column-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .kanban-column-count {
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-full);
+        padding: 0.15rem 0.5rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        border: 1px solid var(--border-glass);
+      }
+
+      .kanban-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex: 1;
+      }
+
+      .kanban-card {
+        padding: 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        cursor: grab;
+        border-left: 3px solid transparent;
+      }
+
+      .kanban-card.priority-High {
+        border-left-color: var(--danger);
+      }
+
+      .kanban-card.priority-Medium {
+        border-left-color: var(--warning);
+      }
+
+      .kanban-card.priority-Low {
+        border-left-color: var(--accent);
+      }
+
+      .kanban-card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .kanban-card-desc {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+
+      .kanban-card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+        border-top: 1px solid var(--border-glass);
+        padding-top: 0.65rem;
+      }
+
+      .kanban-card-assignee {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      /* Voice Assistant floating btn and card */
+      .voice-controller-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 8px 30px var(--primary-glow);
+        z-index: 999;
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+        outline: none;
+      }
+
+      .voice-controller-btn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 12px 35px var(--primary-glow);
+      }
+
+      .voice-controller-btn.recording {
+        background: linear-gradient(135deg, var(--danger), #be123c);
+        box-shadow: 0 8px 30px var(--danger-glow);
+        animation: pulseRecording 1.5s infinite;
+      }
+
+      @keyframes pulseRecording {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+        }
+        70% {
+          transform: scale(1.08);
+          box-shadow: 0 0 0 15px rgba(244, 63, 94, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+        }
+      }
+
+      .voice-overlay {
+        position: fixed;
+        bottom: 8rem;
+        right: 2rem;
+        width: 380px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        z-index: 999;
+        animation: slideInUp var(--transition-normal);
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .voice-overlay-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .voice-status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .voice-pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: var(--radius-full);
+        background: var(--danger);
+        animation: opacityPulse 1s infinite alternate;
+      }
+
+      @keyframes opacityPulse {
+        from { opacity: 0.3; }
+        to { opacity: 1; }
+      }
+
+      .voice-transcript-box {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: var(--radius-sm);
+        padding: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        min-height: 60px;
+        color: var(--text-primary);
+        border: 1px solid var(--border-glass);
+      }
+
+      .voice-transcript-placeholder {
+        color: var(--text-muted);
+        font-style: italic;
+      }
+
+      .voice-action-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border: 1px dashed rgba(16, 185, 129, 0.4);
+        background: rgba(16, 185, 129, 0.05);
+        border-radius: var(--radius-sm);
+        padding: 0.85rem;
+      }
+
+      .voice-action-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
+      .voice-action-desc {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+
+      .voice-action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+      }
+
+      /* Cleaning & translation support views */
+      .cleaning-card-controls {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border-glass);
+        padding-top: 0.75rem;
+      }
+
+      .lang-select {
+        background: var(--bg-sidebar);
+        border: 1px solid var(--border-glass);
+        color: var(--text-primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        outline: none;
+      }
+
+      /* Messages View Layout */
+      .messages-layout {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1.5rem;
+        min-height: 550px;
+      }
+
+      @media (max-width: 768px) {
+        .messages-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .chats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 550px;
+        overflow-y: auto;
+      }
+
+      .chat-thread-card {
+        padding: 1rem;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid transparent;
+        transition: all var(--transition-fast);
+      }
+
+      .chat-thread-card:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .chat-thread-card.active {
+        background: rgba(139, 92, 246, 0.08);
+        border-color: rgba(139, 92, 246, 0.2);
+      }
+
+      .chat-thread-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .chat-thread-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .chat-thread-time {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      .chat-thread-snippet {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .chat-window {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 550px;
+      }
+
+      .chat-window-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-glass);
+      }
+
+      .chat-messages-container {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .message-bubble {
+        max-width: 70%;
+        padding: 0.85rem 1.1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        line-height: 1.4;
+        position: relative;
+      }
+
+      .message-bubble.sender-admin {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+      }
+
+      .message-bubble.sender-parent {
+        background: var(--bg-glass-hover);
+        color: var(--text-primary);
+        border: 1px solid var(--border-glass);
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+      }
+
+      .message-time {
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 0.35rem;
+        text-align: right;
+        display: block;
+      }
+
+      .message-bubble.sender-parent .message-time {
+        color: var(--text-muted);
+      }
+
+      .chat-input-bar {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border-glass);
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .fade-in {
+        animation: fadeIn var(--transition-normal);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div>
+          <div class="sidebar-header">
+            <div class="sidebar-logo-icon">S</div>
+            <span class="sidebar-logo-text">Sorted OS</span>
+          </div>
+          
+          <nav class="sidebar-nav" id="sidebar-navigation">
+            <!-- Navigation Links will be injected here -->
+          </nav>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-avatar">AD</div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name">Admin Dashboard</span>
+            <span class="sidebar-user-role">SaaS School Administrator</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT WRAPPER -->
+      <main class="main-content" id="main-content-panel">
+        <!-- Views will be dynamically loaded here -->
+      </main>
+
+      <!-- FLOATING VOICE BUTTON AND CONTROLLER BOX -->
+      <div id="voice-assistant-root">
+        <!-- Floating Voice Assistant Overlay and Microphone will render here -->
+      </div>
+
+    </div>
+
+    <!-- Modals Host -->
+    <div id="modal-container-host"></div>
+
+    <script>
+      // ==========================================
+      // Mock Database State Configuration
+      // ==========================================
+      let state = {
+        activeView: 'dashboard',
+        
+        students: [
+          { id: "S101", name: "Aarav Sharma", class: "LKG", section: "A", age: 4, parentName: "Rajesh Sharma", parentPhone: "+91 98765 43210", email: "rajesh@example.com", status: "Active", enrollmentDate: "2025-06-15" },
+          { id: "S102", name: "Mira Patel", class: "UKG", section: "B", age: 5, parentName: "Sneha Patel", parentPhone: "+91 98765 43211", email: "sneha@example.com", status: "Active", enrollmentDate: "2024-06-10" },
+          { id: "S103", name: "Kabir Singh", class: "Play Group", section: "A", age: 3, parentName: "Jaspreet Singh", parentPhone: "+91 98765 43212", email: "jaspreet@example.com", status: "Active", enrollmentDate: "2025-08-01" },
+          { id: "S104", name: "Ananya Rao", class: "Nursery", section: "A", age: 3.5, parentName: "Vikram Rao", parentPhone: "+91 98765 43213", email: "vikram@example.com", status: "Active", enrollmentDate: "2025-07-20" },
+          { id: "S105", name: "Reyansh Gupta", class: "LKG", section: "B", age: 4.5, parentName: "Amit Gupta", parentPhone: "+91 98765 43214", email: "amit@example.com", status: "Active", enrollmentDate: "2025-06-18" },
+          { id: "S106", name: "Diya Iyer", class: "UKG", section: "A", age: 5.5, parentName: "Raman Iyer", parentPhone: "+91 98765 43215", email: "raman@example.com", status: "Inactive", enrollmentDate: "2024-06-12" },
+          { id: "S107", name: "Zayan Khan", class: "Nursery", section: "B", age: 3.5, parentName: "Farhan Khan", parentPhone: "+91 98765 43216", email: "farhan@example.com", status: "Active", enrollmentDate: "2025-07-22" },
+          { id: "S108", name: "Abhi Kumar", class: "LKG", section: "A", age: 4.5, parentName: "Surendra Kumar", parentPhone: "+91 98765 43217", email: "surendra@example.com", status: "Active", enrollmentDate: "2025-06-20" }
+        ],
+
+        staff: [
+          { id: "ST201", name: "Priya Sen", role: "Teacher", contact: "+91 99999 11111", email: "priya@sorted.edu", status: "Active", assignedArea: "LKG - Section A" },
+          { id: "ST202", name: "Rohan Das", role: "Admin", contact: "+91 99999 22222", email: "rohan@sorted.edu", status: "Active", assignedArea: "Main Office" },
+          { id: "ST203", name: "Savitri Devi", role: "Support Staff", contact: "+91 99999 33333", email: "savitri@sorted.edu", status: "Active", assignedArea: "Cleanliness & Play Areas" },
+          { id: "ST204", name: "Anita Kapoor", role: "Teacher", contact: "+91 99999 44444", email: "anita@sorted.edu", status: "Active", assignedArea: "UKG - Section B" },
+          { id: "ST205", name: "Ramesh Kumar", role: "Support Staff", contact: "+91 99999 55555", email: "ramesh@sorted.edu", status: "Active", assignedArea: "Kitchen & Maintenance" }
+        ],
+
+        inventory: [
+          { id: "INV301", name: "Safety Scissors", category: "Replaceable items", stockLevel: 25, minStockLevel: 5, unit: "units" },
+          { id: "INV302", name: "Paper Glue Sticks", category: "Replaceable items", stockLevel: 4, minStockLevel: 8, unit: "sticks" },
+          { id: "INV303", name: "Colored Chart Paper", category: "Teaching aids", stockLevel: 150, minStockLevel: 30, unit: "sheets" },
+          { id: "INV304", name: "Non-Toxic Hand Wash", category: "Cleaning items", stockLevel: 3, minStockLevel: 5, unit: "bottles" },
+          { id: "INV305", name: "Sketch Pens Set", category: "Replaceable items", stockLevel: 35, minStockLevel: 10, unit: "packs" },
+          { id: "INV306", name: "Disinfectant Wipes", category: "Cleaning items", stockLevel: 12, minStockLevel: 4, unit: "tubs" }
+        ],
+
+        tasks: [
+          { id: "T401", title: "Sanitize Play Area Blocks", description: "Wipe down all plastic blocks in the Play Group area with disinfectant.", assignedTo: "ST203", priority: "High", status: "Pending", dueDate: "2026-05-26", category: "Cleaning" },
+          { id: "T402", title: "Review UKG Math Lesson Plans", description: "Make sure addition worksheets are ready for next week's classes.", assignedTo: "ST201", priority: "Medium", status: "In Progress", dueDate: "2026-05-28", category: "Teaching" },
+          { id: "T403", title: "Repair Playground Swing Link", description: "Fix the squeaky and loose chain on the middle swing.", assignedTo: "ST205", priority: "High", status: "Pending", dueDate: "2026-05-25", category: "Maintenance" },
+          { id: "T404", title: "Stock Audit", description: "Audit stock levels for chart paper, scissors, and handwash.", assignedTo: "ST202", priority: "Low", status: "Done", dueDate: "2026-05-24", category: "General" }
+        ],
+
+        activities: [
+          { id: "ACT501", name: "Origami Animal Crafts", description: "Fold basic frogs and dogs using colorful chart paper.", class: "LKG", materials: ["Colored Chart Paper", "Safety Scissors"], scheduledDateTime: "2026-05-26T10:00", isFavorite: true },
+          { id: "ACT502", name: "Alphabet Painting", description: "Finger paint the alphabet on paper sheets to learn shapes.", class: "Play Group", materials: ["Colored Chart Paper"], scheduledDateTime: "2026-05-27T09:30", isFavorite: false },
+          { id: "ACT503", name: "Collage Making", description: "Stick scrap papers to construct a house model.", class: "UKG", materials: ["Colored Chart Paper", "Paper Glue Sticks", "Safety Scissors"], scheduledDateTime: "2026-05-28T11:00", isFavorite: true }
+        ],
+
+        lessons: [
+          { id: "LP701", class: "LKG", topic: "Intro to Primary Colors", duration: "45 mins", objective: "Identify Red, Blue, and Yellow in classroom objects.", activities: "Sing color song; Paint with primary colors; Sort colorful blocks.", materials: "Colored Chart Paper, Painting sets, Building Blocks" },
+          { id: "LP702", class: "Play Group", topic: "Animal Noise Identification", duration: "30 mins", objective: "Imitate sounds of farm animals (cow, sheep, pig).", activities: "Read farm animal booklet; play audio clips; play animal matching cards.", materials: "Animal storybook, Audio player, Flash cards" },
+          { id: "LP703", class: "UKG", topic: "Basic Geometry Shapes", duration: "50 mins", objective: "Draw and count edges of circle, square, triangle.", activities: "Draw shapes in sandboxes; Cut shapes out of cardboards; Build matching puzzles.", materials: "Safety Scissors, Sand trays, Shape puzzles" }
+        ],
+
+        events: [
+          { id: "EV601", title: "Summer Activity Camp", date: "2026-06-01", status: "Upcoming", description: "A week-long series of crafts, games, and music for children." },
+          { id: "EV602", title: "Parent-Teacher Meeting", date: "2026-05-30", status: "Upcoming", description: "Discussion on progress cards and class promotions." },
+          { id: "EV603", title: "Preschool Science Fair", date: "2026-05-25", status: "Ongoing", description: "Showcasing simple scientific models by UKG students." }
+        ],
+
+        messages: {
+          templates: [
+            { type: "Event Reminder", subject: "Upcoming Science Fair", content: "Dear parents, please join us today at 11 AM for the Preschool Science Fair in the Main Hall. Your encouragement means the world to our little scientists!" },
+            { type: "Fee Reminder", subject: "Monthly Tuition Fee Due", content: "Dear Parents, this is a friendly reminder that the tuition fee for the current month is due by the 5th. Kindly ignore if already paid. Thank you!" },
+            { type: "Announcement", subject: "Emergency Weather Closure", content: "Dear Parents and Staff, school will remain closed tomorrow due to heavy rainfall warnings. Online engagement activities will be shared by teachers." }
+          ],
+          conversations: [
+            {
+              studentId: "S101",
+              parentName: "Rajesh Sharma",
+              studentName: "Aarav Sharma",
+              messages: [
+                { sender: "parent", text: "Hello Admin, will Aarav have his medical checkup tomorrow?", timestamp: "2026-05-24T14:30:00" },
+                { sender: "admin", text: "Yes, Rajesh. The medical team will be visiting during the morning session. Please ensure he has his health card.", timestamp: "2026-05-24T15:00:00" }
+              ]
+            },
+            {
+              studentId: "S102",
+              parentName: "Sneha Patel",
+              studentName: "Mira Patel",
+              messages: [
+                { sender: "admin", text: "Hello Sneha, we noticed Mira has a mild cough today. Please let us know if she requires medication.", timestamp: "2026-05-25T11:20:00" },
+                { sender: "parent", text: "Thank you for the update. I have placed a cough syrup in her bag, please give her 5ml after lunch.", timestamp: "2026-05-25T11:45:00" }
+              ]
+            }
+          ]
+        },
+
+        attendance: {
+          students: [
+            { date: "2026-05-25", studentId: "S101", status: "Present", remarks: "" },
+            { date: "2026-05-25", studentId: "S102", status: "Present", remarks: "" },
+            { date: "2026-05-25", studentId: "S103", status: "Half Day", remarks: "Doctor appointment" },
+            { date: "2026-05-25", studentId: "S104", status: "Absent", remarks: "Fever" },
+            { date: "2026-05-25", studentId: "S105", status: "Present", remarks: "" },
+            { date: "2026-05-25", studentId: "S107", status: "Early Departure", remarks: "Picked up by mother at 12 PM" }
+          ],
+          staff: [
+            { date: "2026-05-25", staffId: "ST201", checkIn: "08:15 AM", checkOut: "", status: "Present" },
+            { date: "2026-05-25", staffId: "ST202", checkIn: "07:55 AM", checkOut: "", status: "Present" },
+            { date: "2026-05-25", staffId: "ST203", checkIn: "08:00 AM", checkOut: "", status: "Present" },
+            { date: "2026-05-25", staffId: "ST204", checkIn: "08:20 AM", checkOut: "", status: "Present" },
+            { date: "2026-05-25", staffId: "ST205", checkIn: "", checkOut: "", status: "Absent" }
+          ]
+        },
+
+        cleaningLanguage: 'English',
+        activeChatIndex: 0,
+        attendanceDate: new Date().toISOString().split('T')[0],
+        attendanceTab: 'children',
+        attendanceClassFilter: 'All',
+        studentClassFilter: 'All',
+        staffRoleFilter: 'All',
+        taskPriorityFilter: 'All',
+        taskAssigneeFilter: 'All',
+        inventoryCategoryFilter: 'All',
+        lessonClassFilter: 'All',
+        activitiesTab: 'activities',
+        
+        // Voice State
+        isRecording: false,
+        voiceOverlayOpen: false,
+        voiceTranscript: '',
+        voiceAction: null
+      }
+
+      // Helper to trigger rendering on state changes
+      function updateState(updater) {
+        if (typeof updater === 'function') {
+          state = updater(state)
+        } else {
+          state = { ...state, ...updater }
+        }
+        renderApp()
+        
+        // Sync state to PHP backend
+        fetch('api/state.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state)
+        }).catch(err => console.error("Error syncing state to PHP backend:", err));
+      }
+
+
+      // ==========================================
+      // Sidebar Navigation Manager
+      // ==========================================
+      function renderSidebar() {
+        const nav = document.getElementById('sidebar-navigation')
+        const pendingTasks = state.tasks.filter(t => t.status !== 'Done').length
+        const lowStock = state.inventory.filter(item => item.stockLevel <= item.minStockLevel).length
+
+        const menuItems = [
+          { id: 'dashboard', name: 'Dashboard', icon: 'layout-dashboard' },
+          { id: 'students', name: 'Students', icon: 'users' },
+          { id: 'staff', name: 'Staff Roster', icon: 'user-square-2' },
+          { id: 'attendance', name: 'Attendance', icon: 'check-square' },
+          { id: 'tasks', name: 'Tasks Board', icon: 'folder-check', badge: pendingTasks },
+          { id: 'inventory', name: 'Inventory', icon: 'package', badge: lowStock ? '!' : null },
+          { id: 'cleaning', name: 'Housekeeping', icon: 'sparkles' },
+          { id: 'lessons', name: 'Lesson Planning', icon: 'book-open' },
+          { id: 'activities', name: 'Activities & Events', icon: 'calendar-days' },
+          { id: 'communication', name: 'Communication', icon: 'message-square' },
+          { id: 'settings', name: 'Settings', icon: 'settings' }
+        ]
+
+        nav.innerHTML = menuItems.map(item => {
+          let badgeHtml = ''
+          if (item.badge) {
+            const warningClass = item.badge === '!' ? 'badge-warning' : ''
+            badgeHtml = `<span class="kanban-column-count ${warningClass}" style="margin-left: auto; font-size: 0.7rem">${item.badge}</span>`
+          }
+
+          return `
+            <div 
+              onclick="updateState({ activeView: '${item.id}' })"
+              class="sidebar-link ${state.activeView === item.id ? 'active' : ''}"
+              title="${item.name}"
+            >
+              <i data-lucide="${item.icon}" class="sidebar-link-icon"></i>
+              <span>${item.name}</span>
+              ${badgeHtml}
+            </div>
+          `
+        }).join('')
+      }
+
+      // ==========================================
+      // VIEW ROUTER
+      // ==========================================
+      function renderActiveView() {
+        const contentPanel = document.getElementById('main-content-panel')
+        
+        switch (state.activeView) {
+          case 'dashboard':
+            contentPanel.innerHTML = viewDashboard()
+            break
+          case 'students':
+            contentPanel.innerHTML = viewStudents()
+            break
+          case 'staff':
+            contentPanel.innerHTML = viewStaff()
+            break
+          case 'attendance':
+            contentPanel.innerHTML = viewAttendance()
+            break
+          case 'inventory':
+            contentPanel.innerHTML = viewInventory()
+            break
+          case 'tasks':
+            contentPanel.innerHTML = viewTasks()
+            break
+          case 'cleaning':
+            contentPanel.innerHTML = viewCleaning()
+            break
+          case 'lessons':
+            contentPanel.innerHTML = viewLessons()
+            break
+          case 'activities':
+            contentPanel.innerHTML = viewActivities()
+            break
+          case 'communication':
+            contentPanel.innerHTML = viewCommunication()
+            break
+          case 'settings':
+            contentPanel.innerHTML = viewSettings()
+            break
+          default:
+            contentPanel.innerHTML = viewDashboard()
+        }
+      }
+
+      // ==========================================
+      // 1. DASHBOARD VIEW RENDER
+      // ==========================================
+      function viewDashboard() {
+        const activeStudents = state.students.filter(s => s.status === 'Active').length
+        const studentsCheckin = state.attendance.students.filter(
+          s => s.date === state.attendanceDate && (s.status === 'Present' || s.status === 'Half Day' || s.status === 'Early Departure')
+        ).length
+        const studentsCheckinPct = activeStudents > 0 ? Math.round((studentsCheckin / activeStudents) * 100) : 0
+
+        const activeStaff = state.staff.filter(st => st.status === 'Active').length
+        const staffCheckin = state.attendance.staff.filter(s => s.date === state.attendanceDate && s.status === 'Present').length
+
+        const lowStockCount = state.inventory.filter(item => item.stockLevel <= item.minStockLevel).length
+        const pendingTasks = state.tasks.filter(t => t.status !== 'Done')
+
+        // Fetch low stock items list
+        const lowStockItemsHtml = state.inventory.filter(item => item.stockLevel <= item.minStockLevel).map(item => `
+          <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
+            <div>
+              <span style="font-weight: 600; font-size: 0.85rem">${item.name}</span>
+              <span style="display: block; font-size: 0.75rem; color: var(--text-muted)">${item.category}</span>
+            </div>
+            <div style="text-align: right">
+              <span style="color: var(--danger); font-weight: 700; font-size: 0.85rem">${item.stockLevel}</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted)"> / min ${item.minStockLevel} ${item.unit}</span>
+            </div>
+          </div>
+        `).join('') || `<div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem">All items fully stocked!</div>`
+
+        // Staff checked-in list
+        const staffPresentHtml = state.attendance.staff.filter(s => s.date === state.attendanceDate && s.status === 'Present').map(record => {
+          const emp = state.staff.find(st => st.id === record.staffId)
+          if (!emp) return ''
+          return `
+            <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
+              <div>
+                <span style="font-weight: 600; font-size: 0.85rem">${emp.name}</span>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-muted)">${emp.role}</span>
+              </div>
+              <span class="badge badge-active" style="font-size: 0.65rem">
+                Present (${record.checkIn || '08:00 AM'})
+              </span>
+            </div>
+          `
+        }).join('') || `<div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem">No checked-in staff.</div>`
+
+        // Children checked-in list
+        const childrenListHtml = state.attendance.students.filter(s => s.date === state.attendanceDate).map(record => {
+          const child = state.students.find(s => s.id === record.studentId)
+          if (!child) return ''
+          
+          let badgeClass = 'badge-active'
+          if (record.status === 'Absent') badgeClass = 'badge-inactive'
+          if (record.status === 'Half Day') badgeClass = 'badge-warning'
+          if (record.status === 'Early Departure') badgeClass = 'badge-primary'
+
+          return `
+            <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
+              <div>
+                <span style="font-weight: 600; font-size: 0.85rem">${child.name}</span>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-muted)">Class ${child.class} - ${child.section}</span>
+              </div>
+              <span class="badge ${badgeClass}" style="font-size: 0.7rem">
+                ${record.status}
+              </span>
+            </div>
+          `
+        }).join('') || `<div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem">Attendance not marked today.</div>`
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 2rem">
+            
+            <!-- Page Header -->
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Preschool Operations</h1>
+                <p class="page-subtitle">Real-time statistics overview and automated voice assistant command shortcuts.</p>
+              </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="dashboard-grid">
+              <div class="glass-panel stat-card" style="--stat-glow-color: rgba(139, 92, 246, 0.12)">
+                <div class="stat-icon" style="background-color: var(--primary)">
+                  <i data-lucide="baby"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Children Present</span>
+                  <span class="stat-value">${studentsCheckin} / ${activeStudents}</span>
+                  <span class="stat-subtext">${studentsCheckinPct}% attendance rate today</span>
+                </div>
+              </div>
+
+              <div class="glass-panel stat-card" style="--stat-glow-color: rgba(16, 185, 129, 0.12)">
+                <div class="stat-icon" style="background-color: var(--accent)">
+                  <i data-lucide="users"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Staff On Duty</span>
+                  <span class="stat-value">${staffCheckin} / ${activeStaff}</span>
+                  <span class="stat-subtext">Check-ins starting at 07:55 AM</span>
+                </div>
+              </div>
+
+              <div class="glass-panel stat-card" style="--stat-glow-color: rgba(217, 119, 6, 0.12)">
+                <div class="stat-icon" style="background-color: var(--warning)">
+                  <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Low Stock Materials</span>
+                  <span class="stat-value">${lowStockCount}</span>
+                  <span class="stat-subtext">${lowStockCount > 0 ? 'Action required for inventory' : 'All items fully stocked'}</span>
+                </div>
+              </div>
+
+              <div class="glass-panel stat-card" style="--stat-glow-color: rgba(244, 63, 94, 0.12)">
+                <div class="stat-icon" style="background-color: var(--danger)">
+                  <i data-lucide="check-square"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-label">Pending Tasks</span>
+                  <span class="stat-value">${pendingTasks.length}</span>
+                  <span class="stat-subtext">${pendingTasks.filter(t => t.priority === 'High').length} High priority items</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Row -->
+            <div class="dashboard-main-row">
+              
+              <div style="display: flex; flex-direction: column; gap: 1.5rem">
+                <!-- Quick Actions Panel -->
+                <div class="glass-panel" style="padding: 1.5rem">
+                  <div class="dashboard-panel-header">
+                    <h2 class="dashboard-panel-title">Quick Action Navigation</h2>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem">
+                    <button onclick="updateState({ activeView: 'attendance' })" class="btn btn-secondary" style="flex-direction: column; padding: 1.25rem 1rem; height: 100px; font-size: 0.85rem">
+                      <i data-lucide="check-circle" style="color: var(--accent); margin-bottom: 0.5rem"></i>
+                      Attendance Panel
+                    </button>
+                    <button onclick="updateState({ activeView: 'tasks' })" class="btn btn-secondary" style="flex-direction: column; padding: 1.25rem 1rem; height: 100px; font-size: 0.85rem">
+                      <i data-lucide="plus" style="color: var(--primary); margin-bottom: 0.5rem"></i>
+                      Assign Task
+                    </button>
+                    <button onclick="updateState({ activeView: 'lessons' })" class="btn btn-secondary" style="flex-direction: column; padding: 1.25rem 1rem; height: 100px; font-size: 0.85rem">
+                      <i data-lucide="book-open" style="color: var(--primary); margin-bottom: 0.5rem"></i>
+                      Lesson Plans
+                    </button>
+                    <button onclick="updateState({ activeView: 'activities' })" class="btn btn-secondary" style="flex-direction: column; padding: 1.25rem 1rem; height: 100px; font-size: 0.85rem">
+                      <i data-lucide="calendar" style="color: var(--warning); margin-bottom: 0.5rem"></i>
+                      Schedule Event
+                    </button>
+                    <button onclick="updateState({ activeView: 'inventory' })" class="btn btn-secondary" style="flex-direction: column; padding: 1.25rem 1rem; height: 100px; font-size: 0.85rem">
+                      <i data-lucide="package" style="color: var(--text-secondary); margin-bottom: 0.5rem"></i>
+                      Check Inventory
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Secondary Row Lists -->
+                <div class="form-row">
+                  <div class="glass-panel" style="padding: 1.5rem">
+                    <div class="dashboard-panel-header">
+                      <h3 class="dashboard-panel-title" style="font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem">
+                        <i data-lucide="clock" style="color: var(--accent); width: 16px; height: 16px"></i>
+                        Staff Present Today
+                      </h3>
+                    </div>
+                    <div class="dashboard-list" style="max-height: 220px; overflow-y: auto">
+                      ${staffPresentHtml}
+                    </div>
+                  </div>
+
+                  <div class="glass-panel" style="padding: 1.5rem">
+                    <div class="dashboard-panel-header">
+                      <h3 class="dashboard-panel-title" style="font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem">
+                        <i data-lucide="alert-triangle" style="color: var(--danger); width: 16px; height: 16px"></i>
+                        Low Stock Details
+                      </h3>
+                    </div>
+                    <div class="dashboard-list" style="max-height: 220px; overflow-y: auto">
+                      ${lowStockItemsHtml}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Right Hand Column -->
+              <div style="display: flex; flex-direction: column; gap: 1.5rem">
+                <!-- Personal Todo checklist -->
+                <div class="glass-panel" style="padding: 1.5rem">
+                  <div class="dashboard-panel-header">
+                    <h2 class="dashboard-panel-title">Admin Reminders</h2>
+                    <span class="badge badge-primary">SaaS Log</span>
+                  </div>
+                  <div class="dashboard-list">
+                    <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
+                      <span style="font-size: 0.85rem">Confirm lunch menu with Ramesh</span>
+                      <i data-lucide="check" style="color: var(--accent)"></i>
+                    </div>
+                    <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
+                      <span style="font-size: 0.85rem">Review LKG Origami lesson plans</span>
+                      <i data-lucide="check" style="color: var(--accent)"></i>
+                    </div>
+                    <div class="dashboard-list-item" style="padding: 0.65rem 0.85rem">
+                      <span style="font-size: 0.85rem; text-decoration: line-through; color: var(--text-muted)">Order Non-Toxic hand wash bottles</span>
+                      <i data-lucide="check" style="color: var(--text-muted)"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Children Checkin Register -->
+                <div class="glass-panel" style="padding: 1.5rem">
+                  <div class="dashboard-panel-header">
+                    <h2 class="dashboard-panel-title">Children Check-Ins</h2>
+                    <span class="badge badge-active" style="font-size: 0.7rem">Active List</span>
+                  </div>
+                  <div class="dashboard-list" style="max-height: 250px; overflow-y: auto">
+                    ${childrenListHtml}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        `
+      }
+
+      // ==========================================
+      // 2. STUDENTS VIEW RENDER
+      // ==========================================
+      function viewStudents() {
+        const filtered = state.students.filter(student => {
+          const matchesClass = state.studentClassFilter === 'All' ? true : student.class === state.studentClassFilter
+          return matchesClass
+        })
+
+        const rowsHtml = filtered.map(student => `
+          <tr>
+            <td style="font-family: monospace; font-weight: 600">${student.id}</td>
+            <td style="font-weight: 600">${student.name}</td>
+            <td>
+              <span class="badge ${student.class === 'Alumni' ? 'badge-primary' : 'badge-warning'}">
+                ${student.class} ${student.class !== 'Alumni' ? `- Sec ${student.section}` : ''}
+              </span>
+            </td>
+            <td>${student.age} yrs</td>
+            <td>${student.parentName}</td>
+            <td>${student.parentPhone}</td>
+            <td>
+              <span class="badge ${student.status === 'Active' ? 'badge-active' : 'badge-inactive'}">
+                ${student.status}
+              </span>
+            </td>
+            <td>
+              <div style="display: flex; gap: 0.5rem; justify-content: center">
+                <button onclick="handleEditStudent('${student.id}')" class="btn btn-secondary btn-sm" style="padding: 0.35rem">
+                  <i data-lucide="edit-2" style="width: 13px; height: 13px"></i>
+                </button>
+                <button onclick="handleDeleteStudent('${student.id}')" class="btn btn-secondary btn-sm" style="padding: 0.35rem; color: var(--danger)">
+                  <i data-lucide="trash-2" style="width: 13px; height: 13px"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('')
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Student Directory</h1>
+                <p class="page-subtitle">Manage class mapping, parental contacts, and academic promotions.</p>
+              </div>
+              <div class="header-actions">
+                <button onclick="handleBulkPromote()" class="btn btn-secondary" style="color: var(--accent); border-color: rgba(16, 185, 129, 0.3)">
+                  <i data-lucide="graduation-cap"></i>
+                  Promote All Students
+                </button>
+                <button onclick="handleOpenAddStudent()" class="btn btn-primary">
+                  <i data-lucide="plus"></i>
+                  Add Student
+                </button>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="glass-panel" style="padding: 1.25rem; display: flex; gap: 1rem; align-items: center">
+              <span style="font-size: 0.85rem; color: var(--text-secondary)">Filter Class:</span>
+              <select 
+                onchange="updateState({ studentClassFilter: this.value })" 
+                class="form-control"
+                style="min-width: 150px; padding: 0.5rem"
+              >
+                <option value="All" ${state.studentClassFilter === 'All' ? 'selected' : ''}>All Classes</option>
+                <option value="Play Group" ${state.studentClassFilter === 'Play Group' ? 'selected' : ''}>Play Group</option>
+                <option value="Nursery" ${state.studentClassFilter === 'Nursery' ? 'selected' : ''}>Nursery</option>
+                <option value="LKG" ${state.studentClassFilter === 'LKG' ? 'selected' : ''}>LKG</option>
+                <option value="UKG" ${state.studentClassFilter === 'UKG' ? 'selected' : ''}>UKG</option>
+                <option value="Alumni" ${state.studentClassFilter === 'Alumni' ? 'selected' : ''}>Alumni</option>
+              </select>
+            </div>
+
+            <!-- Table -->
+            <div class="glass-panel" style="padding: 1rem">
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Student ID</th>
+                      <th>Name</th>
+                      <th>Class Mapping</th>
+                      <th>Age</th>
+                      <th>Parent/Guardian</th>
+                      <th>Parent Phone</th>
+                      <th>Status</th>
+                      <th style="width: 100px; text-align: center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rowsHtml}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        `
+      }
+
+      // ==========================================
+      // 3. STAFF VIEW RENDER
+      // ==========================================
+      function viewStaff() {
+        const filtered = state.staff.filter(member => {
+          const matchesRole = state.staffRoleFilter === 'All' ? true : member.role === state.staffRoleFilter
+          return matchesRole
+        })
+
+        const rowsHtml = filtered.map(member => {
+          let roleBadge = 'badge-primary'
+          if (member.role === 'Admin') roleBadge = 'badge-active'
+          if (member.role === 'Support Staff') roleBadge = 'badge-warning'
+
+          return `
+            <tr>
+              <td style="font-family: monospace; font-weight: 600">${member.id}</td>
+              <td style="font-weight: 600">${member.name}</td>
+              <td>
+                <span class="badge ${roleBadge}">
+                  {${member.role}}
+                </span>
+              </td>
+              <td style="font-weight: 500">${member.assignedArea || 'Not Assigned'}</td>
+              <td>${member.contact}</td>
+              <td>${member.email}</td>
+              <td>
+                <button 
+                  onclick="handleToggleStaffStatus('${member.id}')"
+                  class="badge ${member.status === 'Active' ? 'badge-active' : 'badge-inactive'}"
+                  style="border: 1px solid transparent; cursor: pointer; outline: none"
+                  title="Toggle active status"
+                >
+                  ${member.status}
+                </button>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.5rem; justify-content: center">
+                  <button onclick="handleEditStaff('${member.id}')" class="btn btn-secondary btn-sm" style="padding: 0.35rem">
+                    <i data-lucide="edit-2" style="width: 13px; height: 13px"></i>
+                  </button>
+                  <button onclick="handleDeleteStaff('${member.id}')" class="btn btn-secondary btn-sm" style="padding: 0.35rem; color: var(--danger)">
+                    <i data-lucide="trash-2" style="width: 13px; height: 13px"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `
+        }).join('')
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Staff Roster</h1>
+                <p class="page-subtitle">Manage coordinators, classroom educators, and facility maintenance support staff.</p>
+              </div>
+              <button onclick="handleOpenAddStaff()" class="btn btn-primary">
+                <i data-lucide="plus"></i>
+                Add Staff Member
+              </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="glass-panel" style="padding: 1.25rem; display: flex; gap: 1rem; align-items: center">
+              <span style="font-size: 0.85rem; color: var(--text-secondary)">Role:</span>
+              <select 
+                onchange="updateState({ staffRoleFilter: this.value })" 
+                class="form-control"
+                style="min-width: 150px; padding: 0.5rem"
+              >
+                <option value="All" ${state.staffRoleFilter === 'All' ? 'selected' : ''}>All Roles</option>
+                <option value="Admin" ${state.staffRoleFilter === 'Admin' ? 'selected' : ''}>Admin</option>
+                <option value="Teacher" ${state.staffRoleFilter === 'Teacher' ? 'selected' : ''}>Teacher</option>
+                <option value="Support Staff" ${state.staffRoleFilter === 'Support Staff' ? 'selected' : ''}>Support Staff</option>
+              </select>
+            </div>
+
+            <!-- Table -->
+            <div class="glass-panel" style="padding: 1rem">
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Staff ID</th>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Assigned Area</th>
+                      <th>Contact</th>
+                      <th>Email Address</th>
+                      <th>Status</th>
+                      <th style="width: 100px; text-align: center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rowsHtml}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+      }
+
+      // ==========================================
+      // 4. ATTENDANCE VIEW RENDER
+      // ==========================================
+      function viewAttendance() {
+        const isChildren = state.attendanceTab === 'children'
+        const listHtml = isChildren ? renderChildrenAttendanceList() : renderStaffAttendanceList()
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Attendance Register</h1>
+                <p class="page-subtitle">Track children daily check-ins and support staff timesheets.</p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <span style="font-size: 0.85rem; color: var(--text-secondary)">Roster Date:</span>
+                <input 
+                  type="date" 
+                  value="${state.attendanceDate}" 
+                  onchange="updateState({ attendanceDate: this.value })" 
+                  class="form-control"
+                  style="width: 160px; padding: 0.5rem"
+                />
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem">
+              <button 
+                onclick="updateState({ attendanceTab: 'children' })" 
+                class="btn ${isChildren ? 'btn-primary' : 'btn-secondary'}"
+                style="flex: 1; max-width: 200px"
+              >
+                Children Register
+              </button>
+              <button 
+                onclick="updateState({ attendanceTab: 'staff' })" 
+                class="btn ${!isChildren ? 'btn-primary' : 'btn-secondary'}"
+                style="flex: 1; max-width: 200px"
+              >
+                Staff Timesheet
+              </button>
+            </div>
+
+            <!-- Sub controls -->
+            <div class="glass-panel" style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap">
+              ${isChildren ? `
+                <div style="display: flex; align-items: center; gap: 0.5rem">
+                  <span style="font-size: 0.85rem; color: var(--text-secondary)">Class:</span>
+                  <select 
+                    onchange="updateState({ attendanceClassFilter: this.value })" 
+                    class="form-control"
+                    style="min-width: 130px; padding: 0.45rem"
+                  >
+                    <option value="All" ${state.attendanceClassFilter === 'All' ? 'selected' : ''}>All Classes</option>
+                    <option value="Play Group" ${state.attendanceClassFilter === 'Play Group' ? 'selected' : ''}>Play Group</option>
+                    <option value="Nursery" ${state.attendanceClassFilter === 'Nursery' ? 'selected' : ''}>Nursery</option>
+                    <option value="LKG" ${state.attendanceClassFilter === 'LKG' ? 'selected' : ''}>LKG</option>
+                    <option value="UKG" ${state.attendanceClassFilter === 'UKG' ? 'selected' : ''}>UKG</option>
+                  </select>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem">
+                  <button onclick="handleBulkMarkStudents('Present')" class="btn btn-secondary btn-sm" style="border-color: rgba(16, 185, 129, 0.3)">Mark All Present</button>
+                  <button onclick="handleBulkMarkStudents('Absent')" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: rgba(244, 63, 94, 0.3)">Mark All Absent</button>
+                </div>
+              ` : `
+                <span style="font-size: 0.85rem; color: var(--text-secondary)">Active Staff Members</span>
+                <div style="display: flex; gap: 0.5rem">
+                  <button onclick="handleBulkMarkStaff('Present')" class="btn btn-secondary btn-sm" style="border-color: rgba(16, 185, 129, 0.3)">Mark All Present</button>
+                  <button onclick="handleBulkMarkStaff('Absent')" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: rgba(244, 63, 94, 0.3)">Mark All Absent</button>
+                </div>
+              `}
+            </div>
+
+            <!-- List Panel -->
+            <div class="glass-panel" style="padding: 1rem">
+              ${listHtml}
+            </div>
+
+          </div>
+        `
+      }
+
+      function renderChildrenAttendanceList() {
+        const active = state.students.filter(s => s.status === 'Active')
+        const filtered = active.filter(s => state.attendanceClassFilter === 'All' ? true : s.class === state.attendanceClassFilter)
+
+        const rows = filtered.map(student => {
+          const record = state.attendance.students.find(r => r.date === state.attendanceDate && r.studentId === student.id)
+          const status = record ? record.status : 'Absent'
+          const remarks = record ? record.remarks : ''
+
+          const statusOptions = ['Present', 'Absent', 'Half Day', 'Early Departure'].map(st => {
+            const isSel = status === st
+            let btnClass = isSel ? (st === 'Present' ? 'btn-primary' : st === 'Absent' ? 'btn-danger' : st === 'Half Day' ? 'btn-warning' : 'btn-primary') : 'btn-secondary'
+            
+            // Override early departure styling for UMD
+            let styles = `padding: 0.25rem 0.5rem; font-size: 0.75rem; opacity: ${isSel ? '1' : '0.45'}`
+            if (isSel && st === 'Early Departure') {
+              styles += '; background: hsl(263, 85%, 63%)'
+            }
+
+            return `
+              <button 
+                onclick="handleMarkStudent('${student.id}', '${st}')" 
+                class="btn ${btnClass} btn-sm"
+                style="${styles}"
+              >
+                ${st}
+              </button>
+            `
+          }).join('')
+
+          return `
+            <tr>
+              <td style="font-family: monospace; font-weight: 600">${student.id}</td>
+              <td style="font-weight: 600">${student.name}</td>
+              <td><span class="badge badge-warning">${student.class} - Sec ${student.section}</span></td>
+              <td>
+                <div style="display: flex; gap: 0.35rem">${statusOptions}</div>
+              </td>
+              <td>
+                <input 
+                  type="text" 
+                  value="${remarks}" 
+                  placeholder="e.g. Cough, Picked up by dad" 
+                  onchange="handleSaveStudentRemark('${student.id}', this.value)"
+                  class="form-control"
+                  style="padding: 0.35rem; font-size: 0.8rem; width: 100%"
+                />
+              </td>
+            </tr>
+          `
+        }).join('')
+
+        return `
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student ID</th>
+                  <th>Name</th>
+                  <th>Class</th>
+                  <th>Status Select</th>
+                  <th>Remarks / Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows || '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted)">No active students.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        `
+      }
+
+      function renderStaffAttendanceList() {
+        const active = state.staff.filter(st => st.status === 'Active')
+        
+        const rows = active.map(member => {
+          const record = state.attendance.staff.find(r => r.date === state.attendanceDate && r.staffId === member.id)
+          const status = record ? record.status : 'Absent'
+          const checkIn = record ? record.checkIn : '08:00 AM'
+          const checkOut = record ? record.checkOut : ''
+
+          const statusOptions = ['Present', 'Absent'].map(st => {
+            const isSel = status === st
+            const btnClass = isSel ? (st === 'Present' ? 'btn-primary' : 'btn-danger') : 'btn-secondary'
+            return `
+              <button 
+                onclick="handleMarkStaff('${member.id}', '${st}')" 
+                class="btn ${btnClass} btn-sm"
+                style="padding: 0.25rem 0.5rem; font-size: 0.75rem; opacity: ${isSel ? '1' : '0.45'}"
+              >
+                ${st}
+              </button>
+            `
+          }).join('')
+
+          return `
+            <tr>
+              <td style="font-family: monospace; font-weight: 600">${member.id}</td>
+              <td style="font-weight: 600">${member.name}</td>
+              <td><span class="badge badge-primary">${member.role}</span></td>
+              <td>
+                <div style="display: flex; gap: 0.35rem">${statusOptions}</div>
+              </td>
+              <td>
+                ${status === 'Present' ? `
+                  <input 
+                    type="text" 
+                    value="${checkIn}" 
+                    onchange="handleSaveStaffTimes('${member.id}', this.value, '${checkOut}')"
+                    class="form-control" 
+                    style="padding: 0.35rem; font-size: 0.8rem; width: 100px; display: inline"
+                  />
+                ` : '<span style="color: var(--text-muted)">N/A</span>'}
+              </td>
+              <td>
+                ${status === 'Present' ? `
+                  <input 
+                    type="text" 
+                    value="${checkOut}" 
+                    placeholder="No check-out"
+                    onchange="handleSaveStaffTimes('${member.id}', '${checkIn}', this.value)"
+                    class="form-control" 
+                    style="padding: 0.35rem; font-size: 0.8rem; width: 120px; display: inline"
+                  />
+                ` : '<span style="color: var(--text-muted)">N/A</span>'}
+              </td>
+            </tr>
+          `
+        }).join('')
+
+        return `
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Staff ID</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Attendance Status</th>
+                  <th>Check-In</th>
+                  <th>Check-Out</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+        `
+      }
+
+      // Attendance Event Handlers
+      window.handleMarkStudent = function(studentId, status) {
+        const list = [...state.attendance.students]
+        const idx = list.findIndex(r => r.date === state.attendanceDate && r.studentId === studentId)
+        if (idx > -1) {
+          list[idx].status = status
+        } else {
+          list.push({ date: state.attendanceDate, studentId, status, remarks: '' })
+        }
+        updateState({ attendance: { ...state.attendance, students: list } })
+      }
+
+      window.handleSaveStudentRemark = function(studentId, remark) {
+        const list = [...state.attendance.students]
+        const idx = list.findIndex(r => r.date === state.attendanceDate && r.studentId === studentId)
+        if (idx > -1) {
+          list[idx].remarks = remark
+        } else {
+          list.push({ date: state.attendanceDate, studentId, status: 'Present', remarks: remark })
+        }
+        updateState({ attendance: { ...state.attendance, students: list } })
+      }
+
+      window.handleMarkStaff = function(staffId, status) {
+        const list = [...state.attendance.staff]
+        const idx = list.findIndex(r => r.date === state.attendanceDate && r.staffId === staffId)
+        if (idx > -1) {
+          list[idx].status = status
+        } else {
+          list.push({ date: state.attendanceDate, staffId, status, checkIn: '08:00 AM', checkOut: '' })
+        }
+        updateState({ attendance: { ...state.attendance, staff: list } })
+      }
+
+      window.handleSaveStaffTimes = function(staffId, checkIn, checkOut) {
+        const list = [...state.attendance.staff]
+        const idx = list.findIndex(r => r.date === state.attendanceDate && r.staffId === staffId)
+        if (idx > -1) {
+          list[idx].checkIn = checkIn
+          list[idx].checkOut = checkOut
+        }
+        updateState({ attendance: { ...state.attendance, staff: list } })
+      }
+
+      window.handleBulkMarkStudents = function(status) {
+        const list = [...state.attendance.students]
+        const active = state.students.filter(s => s.status === 'Active')
+        const filtered = active.filter(s => state.attendanceClassFilter === 'All' ? true : s.class === state.attendanceClassFilter)
+        
+        filtered.forEach(student => {
+          const idx = list.findIndex(r => r.date === state.attendanceDate && r.studentId === student.id)
+          if (idx > -1) {
+            list[idx].status = status
+          } else {
+            list.push({ date: state.attendanceDate, studentId: student.id, status, remarks: '' })
+          }
+        })
+        updateState({ attendance: { ...state.attendance, students: list } })
+      }
+
+      window.handleBulkMarkStaff = function(status) {
+        const list = [...state.attendance.staff]
+        const active = state.staff.filter(st => st.status === 'Active')
+        
+        active.forEach(member => {
+          const idx = list.findIndex(r => r.date === state.attendanceDate && r.staffId === member.id)
+          if (idx > -1) {
+            list[idx].status = status
+          } else {
+            list.push({ date: state.attendanceDate, staffId: member.id, status, checkIn: status === 'Present' ? '08:00 AM' : '', checkOut: '' })
+          }
+        })
+        updateState({ attendance: { ...state.attendance, staff: list } })
+      }
+
+      // ==========================================
+      // 5. INVENTORY VIEW RENDER
+      // ==========================================
+      function viewInventory() {
+        const filtered = state.inventory.filter(item => {
+          return state.inventoryCategoryFilter === 'All' ? true : item.category === state.inventoryCategoryFilter
+        })
+
+        const rows = filtered.map(item => {
+          const isLow = item.stockLevel <= item.minStockLevel
+          let categoryBadge = 'badge-primary'
+          if (item.category === 'Cleaning items') categoryBadge = 'badge-active'
+          if (item.category === 'Replaceable items') categoryBadge = 'badge-warning'
+
+          return `
+            <tr style="background: ${isLow ? 'rgba(244,63,94,0.02)' : 'none'}">
+              <td style="font-family: monospace; font-weight: 600">${item.id}</td>
+              <td style="font-weight: 600">${item.name}</td>
+              <td><span class="badge ${categoryBadge}">${item.category}</span></td>
+              <td style="text-align: center; font-weight: 700; color: ${isLow ? 'var(--danger)' : 'var(--text-primary)'}">
+                ${item.stockLevel}
+              </td>
+              <td style="text-align: center; color: var(--text-muted)">${item.minStockLevel}</td>
+              <td>${item.unit}</td>
+              <td>
+                ${isLow ? '<span class="badge badge-inactive">Reorder Warning</span>' : '<span class="badge badge-active">Good</span>'}
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.25rem; justify-content: center">
+                  <button onclick="handleAdjustStock('${item.id}', -1)" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-weight: 800">-</button>
+                  <button onclick="handleAdjustStock('${item.id}', 5)" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-weight: 800; color: var(--accent)">+5</button>
+                </div>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.5rem; justify-content: center">
+                  <button onclick="handleEditInventory('${item.id}')" class="btn btn-secondary btn-sm" style="padding: 0.35rem">
+                    <i data-lucide="edit-2" style="width: 13px; height: 13px"></i>
+                  </button>
+                  <button onclick="handleDeleteInventory('${item.id}')" class="btn btn-secondary btn-sm" style="padding: 0.35rem; color: var(--danger)">
+                    <i data-lucide="trash-2" style="width: 13px; height: 13px"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `
+        }).join('')
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Inventory Ledger</h1>
+                <p class="page-subtitle">Track classroom supplies, stationery, and sanitation chemicals.</p>
+              </div>
+              <div class="header-actions">
+                <button onclick="handleSimulateConsumption()" class="btn btn-secondary" style="border-color: rgba(124, 58, 237, 0.3)">
+                  Simulate Activity consumption
+                </button>
+                <button onclick="handleOpenAddInventory()" class="btn btn-primary">
+                  <i data-lucide="plus"></i>
+                  Add Supply
+                </button>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="glass-panel" style="padding: 1.25rem; display: flex; gap: 1rem; align-items: center">
+              <span style="font-size: 0.85rem; color: var(--text-secondary)">Category:</span>
+              <select 
+                onchange="updateState({ inventoryCategoryFilter: this.value })" 
+                class="form-control"
+                style="min-width: 180px; padding: 0.5rem"
+              >
+                <option value="All" ${state.inventoryCategoryFilter === 'All' ? 'selected' : ''}>All Categories</option>
+                <option value="Teaching aids" ${state.inventoryCategoryFilter === 'Teaching aids' ? 'selected' : ''}>Teaching aids</option>
+                <option value="Cleaning items" ${state.inventoryCategoryFilter === 'Cleaning items' ? 'selected' : ''}>Cleaning items</option>
+                <option value="Replaceable items" ${state.inventoryCategoryFilter === 'Replaceable items' ? 'selected' : ''}>Replaceable items</option>
+              </select>
+            </div>
+
+            <!-- Table -->
+            <div class="glass-panel" style="padding: 1rem">
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Material ID</th>
+                      <th>Name</th>
+                      <th>Category</th>
+                      <th style="text-align: center">Stock Level</th>
+                      <th style="text-align: center">Threshold</th>
+                      <th>Unit</th>
+                      <th>Alert State</th>
+                      <th style="text-align: center">Adjust Level</th>
+                      <th style="text-align: center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        `
+      }
+
+      window.handleAdjustStock = function(id, amt) {
+        const list = state.inventory.map(item => {
+          if (item.id !== id) return item
+          return { ...item, stockLevel: Math.max(0, item.stockLevel + amt) }
+        })
+        updateState({ inventory: list })
+      }
+
+      window.handleSimulateConsumption = function() {
+        if (confirm("Simulate material consumption for today's classroom activities? This consumes 10 sheets of 'Colored Chart Paper' and 4 'Paper Glue Sticks'.")) {
+          const list = state.inventory.map(item => {
+            if (item.name === 'Colored Chart Paper') return { ...item, stockLevel: Math.max(0, item.stockLevel - 10) }
+            if (item.name === 'Paper Glue Sticks') return { ...item, stockLevel: Math.max(0, item.stockLevel - 4) }
+            return item
+          })
+          updateState({ inventory: list })
+          alert("Consumption simulated successfully!")
+        }
+      }
+
+      // ==========================================
+      // 6. TASKS VIEW RENDER
+      // ==========================================
+      function viewTasks() {
+        const filtered = state.tasks.filter(t => {
+          const matchesPriority = state.taskPriorityFilter === 'All' ? true : t.priority === state.taskPriorityFilter
+          const matchesAssignee = state.taskAssigneeFilter === 'All' ? true : t.assignedTo === state.taskAssigneeFilter
+          return matchesPriority && matchesAssignee
+        })
+
+        const columns = [
+          { id: 'Pending', name: 'To Do', color: 'var(--danger)' },
+          { id: 'In Progress', name: 'In Progress', color: 'var(--warning)' },
+          { id: 'Done', name: 'Completed', color: 'var(--accent)' }
+        ]
+
+        const columnsHtml = columns.map(col => {
+          const colTasks = filtered.filter(t => t.status === col.id)
+          const cardsHtml = colTasks.map(task => {
+            const employee = state.staff.find(s => s.id === task.assignedTo)
+            
+            return `
+              <div 
+                class="glass-panel kanban-card priority-${task.priority}"
+                style="background-color: var(--bg-glass-hover)"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem">
+                  <span class="kanban-card-title">${task.title}</span>
+                  <div style="display: flex; gap: 0.25rem">
+                    <button onclick="handleEditTask('${task.id}')" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer"><i data-lucide="edit-2" style="width:12px;height:12px"></i></button>
+                    <button onclick="handleDeleteTask('${task.id}')" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer"><i data-lucide="trash-2" style="width:12px;height:12px"></i></button>
+                  </div>
+                </div>
+
+                <p class="kanban-card-desc">${task.description}</p>
+                
+                <div style="display: flex; gap: 0.35rem; margin: 0.25rem 0">
+                  <span class="badge ${task.priority === 'High' ? 'badge-inactive' : task.priority === 'Medium' ? 'badge-warning' : 'badge-active'}" style="font-size: 0.65rem">
+                    ${task.priority} Priority
+                  </span>
+                  <span class="badge badge-primary" style="font-size: 0.65rem">${task.category}</span>
+                </div>
+
+                <!-- Shift Controls for click-fallback -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 0.5rem; margin-top: 0.5rem">
+                  <div style="display: flex; gap: 0.25rem">
+                    ${col.id !== 'Pending' ? `<button onclick="handleShiftTask('${task.id}', '${col.id === 'Done' ? 'In Progress' : 'Pending'}')" class="btn btn-secondary btn-sm" style="padding: 0.25rem"><i data-lucide="arrow-left" style="width:10px;height:10px"></i></button>` : ''}
+                    ${col.id !== 'Done' ? `<button onclick="handleShiftTask('${task.id}', '${col.id === 'Pending' ? 'In Progress' : 'Done'}')" class="btn btn-secondary btn-sm" style="padding: 0.25rem"><i data-lucide="arrow-right" style="width:10px;height:10px"></i></button>` : ''}
+                  </div>
+                  <div class="kanban-card-assignee" style="font-size: 0.75rem">
+                    <span>${employee ? employee.name : 'Ramesh Kumar'}</span>
+                  </div>
+                </div>
+
+                <div class="kanban-card-meta" style="font-size: 0.7rem">
+                  <span>Due: ${task.dueDate}</span>
+                  <span style="font-family: monospace">${task.id}</span>
+                </div>
+              </div>
+            `
+          }).join('') || `<div style="display: flex; flex: 1; border: 2px dashed var(--border-glass); border-radius: 8px; justify-content: center; align-items: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem">No items.</div>`
+
+          return `
+            <div class="glass-panel kanban-column" style="background: rgba(15,23,42,0.35)">
+              <div class="kanban-column-header">
+                <span class="kanban-column-title">
+                  <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${col.color}"></span>
+                  ${col.name}
+                </span>
+                <span class="kanban-column-count">${colTasks.length}</span>
+              </div>
+              <div class="kanban-cards">
+                ${cardsHtml}
+              </div>
+            </div>
+          `
+        }).join('')
+
+        const staffOptionsHtml = state.staff.filter(s => s.status === 'Active').map(st => `
+          <option value="${st.id}" ${state.taskAssigneeFilter === st.id ? 'selected' : ''}>${st.name} (${st.role})</option>
+        `).join('')
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Task Boards</h1>
+                <p class="page-subtitle">Roster daily housekeeping task cards, teaching objectives, or maintenance duties.</p>
+              </div>
+              <button onclick="handleOpenAddTask()" class="btn btn-primary">
+                <i data-lucide="plus"></i>
+                Create Task
+              </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="glass-panel" style="padding: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap">
+              <div style="display: flex; align-items: center; gap: 0.5rem">
+                <span style="font-size: 0.85rem; color: var(--text-secondary)">Priority:</span>
+                <select onchange="updateState({ taskPriorityFilter: this.value })" class="form-control" style="min-width: 140px; padding: 0.45rem">
+                  <option value="All" ${state.taskPriorityFilter === 'All' ? 'selected' : ''}>All</option>
+                  <option value="High" ${state.taskPriorityFilter === 'High' ? 'selected' : ''}>High</option>
+                  <option value="Medium" ${state.taskPriorityFilter === 'Medium' ? 'selected' : ''}>Medium</option>
+                  <option value="Low" ${state.taskPriorityFilter === 'Low' ? 'selected' : ''}>Low</option>
+                </select>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem">
+                <span style="font-size: 0.85rem; color: var(--text-secondary)">Assignee:</span>
+                <select onchange="updateState({ taskAssigneeFilter: this.value })" class="form-control" style="min-width: 180px; padding: 0.45rem">
+                  <option value="All" ${state.taskAssigneeFilter === 'All' ? 'selected' : ''}>All Roster</option>
+                  ${staffOptionsHtml}
+                </select>
+              </div>
+            </div>
+
+            <!-- Kanban Board Grid -->
+            <div class="kanban-board">
+              ${columnsHtml}
+            </div>
+
+          </div>
+        `
+      }
+
+      window.handleShiftTask = function(taskId, newStatus) {
+        const list = state.tasks.map(t => {
+          if (t.id !== taskId) return t
+          return { ...t, status: newStatus }
+        })
+        updateState({ tasks: list })
+      }
+
+      // ==========================================
+      // 7. CLEANING VIEW RENDER
+      // ==========================================
+      const translationsMap = {
+        English: {
+          title_blocks: "Sanitize Play Area Blocks",
+          desc_blocks: "Wipe down all plastic blocks in the Play Group area with disinfectant.",
+          title_swing: "Repair Playground Swing Link",
+          desc_swing: "Fix the squeaky and loose chain on the middle swing.",
+          title_window: "Clean Main Corridor Windows",
+          desc_window: "Wash and squeegee all low-level glass panes in the main lobby.",
+          location: "Location",
+          assignee: "Assigned To",
+          status: "Status"
+        },
+        Spanish: {
+          title_blocks: "Desinfectar bloques de área de juego",
+          desc_blocks: "Limpiar todos los bloques de plástico en el área de juegos con desinfectante.",
+          title_swing: "Reparar cadena de columpio de patio",
+          desc_swing: "Arreglar la cadena floja y chillona en el columpio del medio.",
+          title_window: "Limpiar ventanas del pasillo principal",
+          desc_window: "Lavar y limpiar todos los cristales bajos del vestíbulo principal.",
+          location: "Ubicación",
+          assignee: "Asignado a",
+          status: "Estado"
+        },
+        Hindi: {
+          title_blocks: "खेल क्षेत्र के ब्लॉक को साफ करें",
+          desc_blocks: "प्ले ग्रुप क्षेत्र के सभी प्लास्टिक ब्लॉकों को कीटाणुनाशक से साफ करें।",
+          title_swing: "खेल के मैदान के झूले की मरम्मत करें",
+          desc_swing: "बीच वाले झूले की चरमराती और ढीली जंजीर को ठीक करें।",
+          title_window: "मुख्य गलियारे की खिड़कियां साफ करें",
+          desc_window: "मुख्य लॉबी में सभी निचले स्तर के कांच के शीशों को धोएं और साफ करें।",
+          location: "स्थान",
+          assignee: "सौंपा गया",
+          status: "स्थिति"
+        }
+      }
+
+      function viewCleaning() {
+        const cleaningTasks = state.tasks.filter(t => t.category === 'Cleaning' || t.category === 'Maintenance')
+        const currentLang = state.cleaningLanguage
+
+        const tasksHtml = cleaningTasks.map(task => {
+          // Translate title and desc
+          let displayTitle = task.title
+          let displayDesc = task.description
+
+          if (task.id === 'T401') {
+            displayTitle = translationsMap[currentLang].title_blocks
+            displayDesc = translationsMap[currentLang].desc_blocks
+          } else if (task.id === 'T403') {
+            displayTitle = translationsMap[currentLang].title_swing
+            displayDesc = translationsMap[currentLang].desc_swing
+          }
+
+          const staffMember = state.staff.find(s => s.id === task.assignedTo)
+          
+          let statusText = 'To Do'
+          let badgeClass = 'badge-inactive'
+          if (task.status === 'In Progress') {
+            statusText = 'In Progress'
+            badgeClass = 'badge-warning'
+          } else if (task.status === 'Done') {
+            statusText = 'Completed'
+            badgeClass = 'badge-active'
+          }
+
+          const speakText = `${displayTitle}. ${displayDesc}`
+
+          return `
+            <div class="glass-panel" style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.015)">
+              <div style="flex: 1; margin-right: 1.5rem">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem">
+                  <span style="font-weight: 700; font-size: 1.05rem; text-decoration: ${task.status === 'Done' ? 'line-through' : 'none'}; color: ${task.status === 'Done' ? 'var(--text-muted)' : 'var(--text-primary)'}">
+                    ${displayTitle}
+                  </span>
+                  <span class="badge ${badgeClass}" style="font-size: 0.65rem">${statusText}</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4">${displayDesc}</p>
+                
+                <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem">
+                  <span><strong>${translationsMap[currentLang].location}:</strong> Playrooms/Campus</span>
+                  <span><strong>${translationsMap[currentLang].assignee}:</strong> ${staffMember ? staffMember.name : 'Ramesh Kumar'}</span>
+                </div>
+              </div>
+
+              <!-- Controls -->
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <button 
+                  onclick="handleSpeak('${speakText.replace(/'/g, "\\'")}')" 
+                  class="btn btn-secondary" 
+                  style="padding: 0.5rem; border-radius: var(--radius-full)"
+                  title="Read Aloud (TTS)"
+                >
+                  <i data-lucide="volume-2" style="color: var(--primary); width:16px; height:16px"></i>
+                </button>
+                
+                <button 
+                  onclick="handleToggleCleaningTask('${task.id}')"
+                  class="btn ${task.status === 'Done' ? 'btn-secondary' : 'btn-primary'} btn-sm"
+                >
+                  ${task.status === 'Pending' ? 'Start' : task.status === 'In Progress' ? 'Complete' : 'Re-open'}
+                </button>
+              </div>
+            </div>
+          `
+        }).join('')
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Support & Housekeeping</h1>
+                <p class="page-subtitle">Track locations, tasks, and issues with localized translations and Text-to-Speech (TTS).</p>
+              </div>
+
+              <div style="display: flex; gap: 1rem; align-items: center">
+                <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 0.45rem 0.85rem; border-radius: var(--radius-sm)">
+                  <i data-lucide="languages" style="color: var(--primary); width:16px; height:16px"></i>
+                  <select 
+                    onchange="updateState({ cleaningLanguage: this.value })" 
+                    class="lang-select"
+                    style="border: none; background: transparent; cursor: pointer; color: white; font-weight: 600"
+                  >
+                    <option value="English" ${currentLang === 'English' ? 'selected' : ''}>English</option>
+                    <option value="Spanish" ${currentLang === 'Spanish' ? 'selected' : ''}>Español (Spanish)</option>
+                    <option value="Hindi" ${currentLang === 'Hindi' ? 'selected' : ''}>हिन्दी (Hindi)</option>
+                  </select>
+                </div>
+
+                <button onclick="handleOpenReportIssue()" class="btn btn-danger">
+                  <i data-lucide="alert-triangle"></i>
+                  Report Campus Issue
+                </button>
+              </div>
+            </div>
+
+            <!-- Dashboard Row layout -->
+            <div class="dashboard-main-row">
+              <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem">
+                <div class="dashboard-panel-header">
+                  <h2 class="dashboard-panel-title">Active Roster Checklist</h2>
+                  <span class="badge badge-active">${currentLang} localized</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem">
+                  ${tasksHtml}
+                </div>
+              </div>
+
+              <!-- Location mapping list -->
+              <div style="display: flex; flex-direction: column; gap: 1.5rem">
+                <div class="glass-panel" style="padding: 1.5rem">
+                  <div class="dashboard-panel-header">
+                    <h3 class="dashboard-panel-title">Location Coverage</h3>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.75rem">
+                    <div style="padding: 0.75rem; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border-glass)">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600">
+                        <span>Kitchen Area</span>
+                        <span style="color: var(--accent)">Cleaned</span>
+                      </div>
+                    </div>
+                    <div style="padding: 0.75rem; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border-glass)">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600">
+                        <span>Nursery Classrooms</span>
+                        <span style="color: var(--warning)">In Progress</span>
+                      </div>
+                    </div>
+                    <div style="padding: 0.75rem; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border-glass)">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600">
+                        <span>Main Playground Link</span>
+                        <span style="color: var(--danger)">Pending</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="glass-panel" style="padding: 1.5rem; background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.03), rgba(0,0,0,0))">
+                  <div style="display: flex; gap: 0.75rem">
+                    <i data-lucide="volume-2" style="color: var(--accent); flex-shrink: 0"></i>
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem">Text-to-Speech Guidance</h4>
+                      <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4">
+                        Press the speaker icon next to any task to hear the description read aloud. Useful for support staff verifying instructions under busy or noisy conditions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        `
+      }
+
+      window.handleSpeak = function(text) {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel()
+          const utterance = new SpeechSynthesisUtterance(text)
+          if (state.cleaningLanguage === 'Spanish') utterance.lang = 'es-ES'
+          else if (state.cleaningLanguage === 'Hindi') utterance.lang = 'hi-IN'
+          else utterance.lang = 'en-US'
+          window.speechSynthesis.speak(utterance)
+        } else {
+          alert('TTS not supported in this browser.')
+        }
+      }
+
+      window.handleToggleCleaningTask = function(id) {
+        const list = state.tasks.map(t => {
+          if (t.id !== id) return t
+          const next = t.status === 'Pending' ? 'In Progress' : t.status === 'In Progress' ? 'Done' : 'Pending'
+          return { ...t, status: next }
+        })
+        updateState({ tasks: list })
+      }
+
+      // ==========================================
+      // 8. LESSON PLANNING VIEW RENDER
+      // ==========================================
+      function viewLessons() {
+        const lessonsList = state.lessons || []
+        
+        // Filter by class if filter is not "All"
+        const filteredLessons = lessonsList.filter(plan => {
+          return state.lessonClassFilter === 'All' ? true : plan.class === state.lessonClassFilter
+        })
+
+        const lessonsHtml = filteredLessons.map(plan => `
+          <div class="glass-panel" style="padding: 1.5rem; display: grid; grid-template-columns: 3fr 1fr; gap: 1rem">
+            <div style="display: flex; flex-direction: column; gap: 0.75rem">
+              <div style="display: flex; align-items: center; gap: 0.75rem">
+                <span class="badge badge-active">${plan.class}</span>
+                <span class="badge badge-primary">${plan.duration}</span>
+                <h3 style="font-size: 1.15rem; font-weight: 700">${plan.topic}</h3>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem">
+                <p><strong>Objective:</strong> <span style="color: var(--text-secondary)">${plan.objective}</span></p>
+                <p><strong>Core Activities:</strong> <span style="color: var(--text-secondary)">${plan.activities}</span></p>
+                <p><strong>Materials Required:</strong> <span style="color: var(--accent); font-weight: 500">${plan.materials}</span></p>
+              </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; align-items: flex-end; border-left: 1px solid var(--border-glass); padding-left: 1rem">
+              <span style="font-size: 0.75rem; font-family: monospace; color: var(--text-muted); margin-bottom: auto">LPID: ${plan.id}</span>
+              <div style="display: flex; gap: 0.5rem">
+                <button onclick="handleDuplicateLesson('${plan.id}')" class="btn btn-secondary btn-sm" title="Duplicate/Copy"><i data-lucide="copy" style="width:13px;height:13px"></i></button>
+                <button onclick="handleDeleteLesson('${plan.id}')" class="btn btn-secondary btn-sm" style="color: var(--danger)" title="Delete"><i data-lucide="trash-2" style="width:13px;height:13px"></i></button>
+              </div>
+            </div>
+          </div>
+        `).join('')
+
+        const noLessonsMessage = `
+          <div class="glass-panel" style="padding: 3rem; text-align: center; color: var(--text-muted)">
+            <i data-lucide="book-open" style="width: 40px; height: 40px; margin-bottom: 1rem; stroke-width: 1.5; color: var(--text-muted)"></i>
+            <p>No lesson plans found for this class filter.</p>
+          </div>
+        `
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Curriculum Planner</h1>
+                <p class="page-subtitle">Formulate academic goals, materials needed, and daily classes guidelines.</p>
+              </div>
+              <div style="display: flex; gap: 0.75rem; align-items: center">
+                <select 
+                  onchange="updateState({ lessonClassFilter: this.value })"
+                  class="form-control" 
+                  style="width: 160px; height: 40px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-glass); color: var(--text-primary)"
+                >
+                  <option value="All" ${state.lessonClassFilter === 'All' ? 'selected' : ''}>All Classes</option>
+                  <option value="Play Group" ${state.lessonClassFilter === 'Play Group' ? 'selected' : ''}>Play Group</option>
+                  <option value="Nursery" ${state.lessonClassFilter === 'Nursery' ? 'selected' : ''}>Nursery</option>
+                  <option value="LKG" ${state.lessonClassFilter === 'LKG' ? 'selected' : ''}>LKG</option>
+                  <option value="UKG" ${state.lessonClassFilter === 'UKG' ? 'selected' : ''}>UKG</option>
+                </select>
+
+                <button onclick="handleOpenAddLesson()" class="btn btn-primary" style="height: 40px">
+                  <i data-lucide="plus"></i>
+                  Create Plan
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem">
+              ${lessonsHtml.length > 0 ? lessonsHtml : noLessonsMessage}
+            </div>
+          </div>
+        `
+      }
+
+      // ==========================================
+      // 9. ACTIVITIES & EVENTS VIEW RENDER
+      // ==========================================
+      function viewActivities() {
+        const isActivities = state.activitiesTab === 'activities'
+
+        const activitiesCardsHtml = state.activities.map(act => `
+          <div class="glass-panel glass-panel-interactive" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; border-top: ${act.isFavorite ? '2px solid var(--primary)' : '1px solid var(--border-glass)'}">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start">
+                <span class="badge badge-warning">${act.class} Class</span>
+                <button onclick="handleToggleFavoriteActivity('${act.id}')" style="background: transparent; border: none; cursor: pointer; color: ${act.isFavorite ? 'var(--primary)' : 'var(--text-muted)'}">
+                  <i data-lucide="heart" style="width:18px;height:18px" fill="${act.isFavorite ? 'var(--primary)' : 'none'}"></i>
+                </button>
+              </div>
+              <h3 style="font-size: 1.25rem; font-weight: 700; margin-top: 0.5rem">${act.name}</h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.4">${act.description}</p>
+            </div>
+            
+            <div>
+              <div style="background: rgba(0,0,0,0.15); border-radius: 8px; padding: 0.75rem; border: 1px solid var(--border-glass)">
+                <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.35rem">Supplies Consumed</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.35rem">
+                  ${act.materials.map(mat => `<span class="badge badge-primary" style="font-size: 0.65rem">${mat}</span>`).join('')}
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; border-top: 1px solid var(--border-glass); padding-top: 0.75rem; font-size: 0.78rem; color: var(--text-muted)">
+                <span>Scheduled: ${new Date(act.scheduledDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+                <button onclick="handleDeleteActivity('${act.id}')" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted)">Delete</button>
+              </div>
+            </div>
+          </div>
+        `).join('')
+
+        const eventsListHtml = state.events.map(ev => {
+          let statusBadge = 'badge-active'
+          if (ev.status === 'Upcoming') statusBadge = 'badge-primary'
+          if (ev.status === 'Completed') statusBadge = 'badge-inactive'
+
+          return `
+            <div class="glass-panel" style="padding: 1.5rem; display: grid; grid-template-columns: 4fr 1fr; gap: 1rem">
+              <div style="display: flex; flex-direction: column; gap: 0.5rem">
+                <div style="display: flex; align-items: center; gap: 0.75rem">
+                  <span class="badge ${statusBadge}">${ev.status}</span>
+                  <span style="font-size: 0.8rem; color: var(--text-secondary)">Date: ${ev.date}</span>
+                  <h3 style="font-size: 1.15rem; font-weight: 700">${ev.title}</h3>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.4">${ev.description}</p>
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; align-items: flex-end; border-left: 1px solid var(--border-glass); padding-left: 1rem">
+                <button onclick="handleToggleEventStatus('${ev.id}')" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; width: 100%">
+                  Toggle State
+                </button>
+                <button onclick="handleDeleteEvent('${ev.id}')" class="btn btn-secondary btn-sm" style="color: var(--danger); width: 100%">
+                  Delete
+                </button>
+              </div>
+            </div>
+          `
+        }).join('')
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Activities & Events</h1>
+                <p class="page-subtitle">Schedule classroom lessons, track resource consumption, and coordinate major events.</p>
+              </div>
+              <button onclick="${isActivities ? 'handleOpenAddActivity()' : 'handleOpenAddEvent()'}" class="btn btn-primary">
+                <i data-lucide="plus"></i>
+                ${isActivities ? 'Add Activity' : 'Add Event'}
+              </button>
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem">
+              <button onclick="updateState({ activitiesTab: 'activities' })" class="btn ${isActivities ? 'btn-primary' : 'btn-secondary'}" style="flex: 1; max-width: 200px">
+                Classroom Activities
+              </button>
+              <button onclick="updateState({ activitiesTab: 'events' })" class="btn ${!isActivities ? 'btn-primary' : 'btn-secondary'}" style="flex: 1; max-width: 200px">
+                School Events
+              </button>
+            </div>
+
+            <!-- Lists Display -->
+            ${isActivities ? `
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem">
+                ${activitiesCardsHtml}
+              </div>
+            ` : `
+              <div style="display: flex; flex-direction: column; gap: 1rem">
+                ${eventsListHtml}
+              </div>
+            `}
+
+          </div>
+        `
+      }
+
+      window.handleToggleFavoriteActivity = function(id) {
+        const list = state.activities.map(act => {
+          if (act.id !== id) return act
+          return { ...act, isFavorite: !act.isFavorite }
+        })
+        updateState({ activities: list })
+      }
+
+      window.handleToggleEventStatus = function(id) {
+        const list = state.events.map(ev => {
+          if (ev.id !== id) return ev
+          const next = ev.status === 'Upcoming' ? 'Ongoing' : ev.status === 'Ongoing' ? 'Completed' : 'Upcoming'
+          return { ...ev, status: next }
+        })
+        updateState({ events: list })
+      }
+
+      window.handleDeleteActivity = function(id) {
+        if (confirm("Delete this activity plan?")) {
+          updateState({ activities: state.activities.filter(a => a.id !== id) })
+        }
+      }
+
+      window.handleDeleteEvent = function(id) {
+        if (confirm("Delete this event?")) {
+          updateState({ events: state.events.filter(e => e.id !== id) })
+        }
+      }
+
+      // ==========================================
+      // 10. COMMUNICATION VIEW RENDER
+      // ==========================================
+      function viewCommunication() {
+        const templatesHtml = state.messages.templates.map(tpl => `
+          <button 
+            onclick="handleApplyTemplate('${tpl.type.replace(/'/g, "\\'")}', '${tpl.subject.replace(/'/g, "\\'")}', '${tpl.content.replace(/'/g, "\\'")}')"
+            class="btn btn-secondary btn-sm"
+            style="display: flex; justify-content: flex-start; text-align: left; padding: 0.65rem 0.85rem; width: 100%"
+          >
+            <div>
+              <strong style="font-size: 0.8rem; color: var(--primary); display: block">${tpl.type}</strong>
+              <span style="font-size: 0.78rem; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px">${tpl.subject}</span>
+            </div>
+          </button>
+        `).join('')
+
+        const chatThreadsHtml = state.messages.conversations.map((convo, idx) => {
+          const lastMsg = convo.messages[convo.messages.length - 1]
+          const snippet = lastMsg ? lastMsg.text : 'No messages'
+          return `
+            <div 
+              onclick="updateState({ activeChatIndex: ${idx} })"
+              class="chat-thread-card ${state.activeChatIndex === idx ? 'active' : ''}"
+            >
+              <div class="chat-thread-header">
+                <span class="chat-thread-name">${convo.parentName}</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted)">02:15 PM</span>
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600">Parent of: ${convo.studentName}</span>
+              <p class="chat-thread-snippet">${snippet}</p>
+            </div>
+          `
+        }).join('')
+
+        const activeConvo = state.messages.conversations[state.activeChatIndex]
+        let chatWindowHtml = ''
+        
+        if (activeConvo) {
+          const bubblesHtml = activeConvo.messages.map(msg => `
+            <div class="message-bubble sender-${msg.sender}">
+              <span>${msg.text}</span>
+            </div>
+          `).join('')
+
+          chatWindowHtml = `
+            <div class="chat-window">
+              <div class="chat-window-header">
+                <h4 style="font-size: 0.95rem; font-weight: 700">${activeConvo.parentName}</h4>
+                <p style="font-size: 0.75rem; color: var(--text-muted)">Parent channel • Student: ${activeConvo.studentName} (${activeConvo.studentId})</p>
+              </div>
+              
+              <div class="chat-messages-container">
+                ${bubblesHtml}
+              </div>
+              
+              <form onsubmit="handleSendChat(event)" class="chat-input-bar">
+                <input 
+                  type="text" 
+                  id="chat-reply-input"
+                  placeholder="Type a reply to ${activeConvo.parentName}..."
+                  class="form-control"
+                  style="flex: 1; padding: 0.5rem 1rem"
+                />
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem">
+                  <i data-lucide="send" style="width:16px; height:16px"></i>
+                </button>
+              </form>
+            </div>
+          `
+        }
+
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">Communication</h1>
+                <p class="page-subtitle">Broadcast reminders, alerts, and conduct private parent conversations.</p>
+              </div>
+            </div>
+
+            <div class="messages-layout">
+              <!-- Templates & Broadcast -->
+              <div style="display: flex; flex-direction: column; gap: 1.5rem">
+                <div class="glass-panel" style="padding: 1.25rem">
+                  <div class="dashboard-panel-header">
+                    <h2 class="dashboard-panel-title">Message Templates</h2>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem">
+                    ${templatesHtml}
+                  </div>
+                </div>
+
+                <div class="glass-panel" style="padding: 1.25rem">
+                  <div class="dashboard-panel-header">
+                    <h2 class="dashboard-panel-title">Broadcast Alert</h2>
+                  </div>
+                  <form onsubmit="handleSendBroadcast(event)" style="display: flex; flex-direction: column; gap: 0.85rem">
+                    <div class="form-group">
+                      <label class="form-label">Subject</label>
+                      <input type="text" id="broadcast-subj" class="form-control" placeholder="Subject line..." required />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Broadcast Text</label>
+                      <textarea id="broadcast-body" class="form-control" rows="3" placeholder="Write message..." required style="resize: none"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%">Broadcast to All Parents</button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Chat window -->
+              <div class="glass-panel" style="padding: 1rem; display: grid; grid-template-columns: 1.2fr 2fr; gap: 1rem">
+                <div class="chats-list" style="border-right: 1px solid var(--border-glass); padding-right: 0.75rem">
+                  ${chatThreadsHtml}
+                </div>
+                <div>
+                  ${chatWindowHtml}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        `
+      }
+
+      window.handleApplyTemplate = function(type, subject, content) {
+        document.getElementById('broadcast-subj').value = subject
+        document.getElementById('broadcast-body').value = content
+      }
+
+      window.handleSendBroadcast = function(e) {
+        e.preventDefault()
+        const sub = document.getElementById('broadcast-subj').value
+        const body = document.getElementById('broadcast-body').value
+        alert(`Broadcast Notification Sent!\nSubject: ${sub}\nContent: ${body}`)
+        document.getElementById('broadcast-subj').value = ''
+        document.getElementById('broadcast-body').value = ''
+      }
+
+      window.handleSendChat = function(e) {
+        e.preventDefault()
+        const inp = document.getElementById('chat-reply-input')
+        if (!inp.value.trim()) return
+
+        const conversations = [...state.messages.conversations]
+        conversations[state.activeChatIndex].messages.push({
+          sender: 'admin',
+          text: inp.value.trim(),
+          timestamp: new Date().toISOString()
+        })
+        inp.value = ''
+        updateState({ messages: { ...state.messages, conversations } })
+      }
+
+      // ==========================================
+      // 11. SETTINGS VIEW RENDER
+      // ==========================================
+      function viewSettings() {
+        return `
+          <div class="fade-in" style="display: flex; flex-direction: column; gap: 1.5rem">
+            <div class="page-header">
+              <div class="page-title-area">
+                <h1 class="page-title">SaaS Settings</h1>
+                <p class="page-subtitle">Configure school details, profile data, and class mapping parameters.</p>
+              </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: 1.2fr 1fr">
+              <div class="glass-panel" style="padding: 1.5rem">
+                <div class="dashboard-panel-header">
+                  <h2 class="dashboard-panel-title">Academy Information</h2>
+                  <button onclick="alert('Settings Saved')" class="btn btn-primary btn-sm">Save</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem">
+                  <div class="form-group">
+                    <label class="form-label">School Name</label>
+                    <input type="text" class="form-control" value="Sorted Preschool Academy" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" value="Sector 15, Vasant Kunj, New Delhi" />
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Phone</label>
+                      <input type="text" class="form-control" value="+91 11 2345 6789" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input type="text" class="form-control" value="info@sorted.edu.in" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass-panel" style="padding: 1.5rem">
+                <div class="dashboard-panel-header">
+                  <h2 class="dashboard-panel-title">Administrator Profile</h2>
+                  <button onclick="alert('Profile Updated')" class="btn btn-primary btn-sm">Update</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem">
+                  <div class="form-group">
+                    <label class="form-label">Admin Name</label>
+                    <input type="text" class="form-control" value="Rohan Das" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Work Title</label>
+                    <input type="text" class="form-control" value="Principal Administrator" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      }
+
+      // ==========================================
+      // MODALS HOSTING & SUBMIT MANAGERS
+      // ==========================================
+      const modalHost = document.getElementById('modal-container-host')
+      
+      window.handleOpenAddStudent = function() {
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Register New Student</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddStudent(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Student Name</label>
+                  <input type="text" id="m-name" class="form-control" placeholder="Aarav Sharma" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Class</label>
+                    <select id="m-class" class="form-control">
+                      <option value="Play Group">Play Group</option>
+                      <option value="Nursery">Nursery</option>
+                      <option value="LKG">LKG</option>
+                      <option value="UKG">UKG</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Section</label>
+                    <select id="m-sec" class="form-control"><option value="A">Sec A</option><option value="B">Sec B</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number" id="m-age" class="form-control" value="4" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Parent Name</label>
+                    <input type="text" id="m-parent" class="form-control" placeholder="Rajesh Sharma" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Parent Contact</label>
+                    <input type="text" id="m-phone" class="form-control" placeholder="+91 98765..." required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="m-email" class="form-control" placeholder="parent@example.com" required />
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Enroll Student</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitAddStudent = function(e) {
+        e.preventDefault()
+        const newStud = {
+          id: `S${Date.now().toString().slice(-3)}`,
+          name: document.getElementById('m-name').value,
+          class: document.getElementById('m-class').value,
+          section: document.getElementById('m-sec').value,
+          age: parseInt(document.getElementById('m-age').value) || 4,
+          parentName: document.getElementById('m-parent').value,
+          parentPhone: document.getElementById('m-phone').value,
+          email: document.getElementById('m-email').value,
+          status: 'Active',
+          enrollmentDate: new Date().toISOString().split('T')[0]
+        }
+        updateState({ students: [...state.students, newStud] })
+        closeModal()
+      }
+
+      window.handleEditStudent = function(id) {
+        const student = state.students.find(s => s.id === id)
+        if (!student) return
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Edit Student Details</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitEditStudent(event, '${id}')" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Student Name</label>
+                  <input type="text" id="m-name" class="form-control" value="${student.name}" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Class</label>
+                    <select id="m-class" class="form-control">
+                      <option value="Play Group" ${student.class === 'Play Group' ? 'selected' : ''}>Play Group</option>
+                      <option value="Nursery" ${student.class === 'Nursery' ? 'selected' : ''}>Nursery</option>
+                      <option value="LKG" ${student.class === 'LKG' ? 'selected' : ''}>LKG</option>
+                      <option value="UKG" ${student.class === 'UKG' ? 'selected' : ''}>UKG</option>
+                      <option value="Alumni" ${student.class === 'Alumni' ? 'selected' : ''}>Alumni</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Section</label>
+                    <select id="m-sec" class="form-control">
+                      <option value="A" ${student.section === 'A' ? 'selected' : ''}>Sec A</option>
+                      <option value="B" ${student.section === 'B' ? 'selected' : ''}>Sec B</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number" step="0.1" id="m-age" class="form-control" value="${student.age}" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Parent Name</label>
+                    <input type="text" id="m-parent" class="form-control" value="${student.parentName}" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Parent Contact</label>
+                    <input type="text" id="m-phone" class="form-control" value="${student.parentPhone}" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="m-email" class="form-control" value="${student.email}" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select id="m-status" class="form-control">
+                    <option value="Active" ${student.status === 'Active' ? 'selected' : ''}>Active</option>
+                    <option value="Inactive" ${student.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                  </select>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitEditStudent = function(e, id) {
+        e.preventDefault()
+        const list = state.students.map(s => {
+          if (s.id !== id) return s
+          return {
+            ...s,
+            name: document.getElementById('m-name').value,
+            class: document.getElementById('m-class').value,
+            section: document.getElementById('m-sec').value,
+            age: parseFloat(document.getElementById('m-age').value) || 4,
+            parentName: document.getElementById('m-parent').value,
+            parentPhone: document.getElementById('m-phone').value,
+            email: document.getElementById('m-email').value,
+            status: document.getElementById('m-status').value
+          }
+        })
+        updateState({ students: list })
+        closeModal()
+      }
+
+      window.handleDeleteStudent = function(id) {
+        if (confirm("Remove student from database?")) {
+          updateState({ students: state.students.filter(s => s.id !== id) })
+        }
+      }
+
+      window.handleBulkPromote = function() {
+        if (confirm("Promote all students across classes? (LKG -> UKG, Play Group -> Nursery)")) {
+          const list = state.students.map(s => {
+            let next = s.class
+            let status = s.status
+            if (s.class === 'Play Group') next = 'Nursery'
+            else if (s.class === 'Nursery') next = 'LKG'
+            else if (s.class === 'LKG') next = 'UKG'
+            else if (s.class === 'UKG') { next = 'Alumni'; status = 'Inactive' }
+            return { ...s, class: next, status }
+          })
+          updateState({ students: list })
+          alert("All students promoted successfully!")
+        }
+      }
+
+      window.handleOpenAddStaff = function() {
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Register Staff Profile</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddStaff(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" id="st-name" class="form-control" placeholder="Anita Kapoor" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="st-role" class="form-control">
+                      <option value="Teacher">Teacher</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Support Staff">Support Staff</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Assigned Duty/Area</label>
+                    <input type="text" id="st-area" class="form-control" placeholder="e.g. UKG-B, Maintenance" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Phone Contact</label>
+                    <input type="text" id="st-phone" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="st-email" class="form-control" required />
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Member</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitAddStaff = function(e) {
+        e.preventDefault()
+        const newSt = {
+          id: `ST${Date.now().toString().slice(-3)}`,
+          name: document.getElementById('st-name').value,
+          role: document.getElementById('st-role').value,
+          assignedArea: document.getElementById('st-area').value,
+          contact: document.getElementById('st-phone').value,
+          email: document.getElementById('st-email').value,
+          status: 'Active'
+        }
+        updateState({ staff: [...state.staff, newSt] })
+        closeModal()
+      }
+
+      window.handleEditStaff = function(id) {
+        const member = state.staff.find(s => s.id === id)
+        if (!member) return
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Edit Staff Profile</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitEditStaff(event, '${id}')" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" id="st-name" class="form-control" value="${member.name}" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="st-role" class="form-control">
+                      <option value="Teacher" ${member.role === 'Teacher' ? 'selected' : ''}>Teacher</option>
+                      <option value="Admin" ${member.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                      <option value="Support Staff" ${member.role === 'Support Staff' ? 'selected' : ''}>Support Staff</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Assigned Duty/Area</label>
+                    <input type="text" id="st-area" class="form-control" value="${member.assignedArea}" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Phone Contact</label>
+                    <input type="text" id="st-phone" class="form-control" value="${member.contact}" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="st-email" class="form-control" value="${member.email}" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select id="st-status" class="form-control">
+                    <option value="Active" ${member.status === 'Active' ? 'selected' : ''}>Active</option>
+                    <option value="Inactive" ${member.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                  </select>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitEditStaff = function(e, id) {
+        e.preventDefault()
+        const list = state.staff.map(s => {
+          if (s.id !== id) return s
+          return {
+            ...s,
+            name: document.getElementById('st-name').value,
+            role: document.getElementById('st-role').value,
+            assignedArea: document.getElementById('st-area').value,
+            contact: document.getElementById('st-phone').value,
+            email: document.getElementById('st-email').value,
+            status: document.getElementById('st-status').value
+          }
+        })
+        updateState({ staff: list })
+        closeModal()
+      }
+
+      window.handleToggleStaffStatus = function(id) {
+        const list = state.staff.map(s => {
+          if (s.id !== id) return s
+          return { ...s, status: s.status === 'Active' ? 'Inactive' : 'Active' }
+        })
+        updateState({ staff: list })
+      }
+
+      window.handleDeleteStaff = function(id) {
+        if (confirm("Remove this staff record?")) {
+          updateState({ staff: state.staff.filter(s => s.id !== id) })
+        }
+      }
+
+      window.handleOpenAddInventory = function() {
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Register Material Supply</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddInventory(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Material Name</label>
+                  <input type="text" id="inv-name" class="form-control" placeholder="Colored Crayons" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category</label>
+                  <select id="inv-cat" class="form-control">
+                    <option value="Replaceable items">Replaceable items</option>
+                    <option value="Teaching aids">Teaching aids</option>
+                    <option value="Cleaning items">Cleaning items</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Current Stock</label>
+                    <input type="number" id="inv-stock" class="form-control" value="20" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Min Threshold</label>
+                    <input type="number" id="inv-min" class="form-control" value="5" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Unit</label>
+                  <input type="text" id="inv-unit" class="form-control" value="packs" required />
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Material</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitAddInventory = function(e) {
+        e.preventDefault()
+        const newItem = {
+          id: `INV${Date.now().toString().slice(-3)}`,
+          name: document.getElementById('inv-name').value,
+          category: document.getElementById('inv-cat').value,
+          stockLevel: parseInt(document.getElementById('inv-stock').value) || 0,
+          minStockLevel: parseInt(document.getElementById('inv-min').value) || 0,
+          unit: document.getElementById('inv-unit').value
+        }
+        updateState({ inventory: [...state.inventory, newItem] })
+        closeModal()
+      }
+
+      window.handleEditInventory = function(id) {
+        const item = state.inventory.find(i => i.id === id)
+        if (!item) return
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Edit Material Details</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitEditInventory(event, '${id}')" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Material Name</label>
+                  <input type="text" id="inv-name" class="form-control" value="${item.name}" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category</label>
+                  <select id="inv-cat" class="form-control">
+                    <option value="Replaceable items" ${item.category === 'Replaceable items' ? 'selected' : ''}>Replaceable items</option>
+                    <option value="Teaching aids" ${item.category === 'Teaching aids' ? 'selected' : ''}>Teaching aids</option>
+                    <option value="Cleaning items" ${item.category === 'Cleaning items' ? 'selected' : ''}>Cleaning items</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Current Stock</label>
+                    <input type="number" id="inv-stock" class="form-control" value="${item.stockLevel}" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Min Threshold</label>
+                    <input type="number" id="inv-min" class="form-control" value="${item.minStockLevel}" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Unit</label>
+                  <input type="text" id="inv-unit" class="form-control" value="${item.unit}" required />
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitEditInventory = function(e, id) {
+        e.preventDefault()
+        const list = state.inventory.map(i => {
+          if (i.id !== id) return i
+          return {
+            ...i,
+            name: document.getElementById('inv-name').value,
+            category: document.getElementById('inv-cat').value,
+            stockLevel: parseInt(document.getElementById('inv-stock').value) || 0,
+            minStockLevel: parseInt(document.getElementById('inv-min').value) || 0,
+            unit: document.getElementById('inv-unit').value
+          }
+        })
+        updateState({ inventory: list })
+        closeModal()
+      }
+
+      window.handleDeleteInventory = function(id) {
+        if (confirm("Delete inventory supply?")) {
+          updateState({ inventory: state.inventory.filter(i => i.id !== id) })
+        }
+      }
+
+      window.handleOpenAddTask = function() {
+        const staffOptions = state.staff.filter(s => s.status === 'Active').map(st => `
+          <option value="${st.id}">${st.name} (${st.role})</option>
+        `).join('')
+
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Create Task Card</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddTask(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Task Title</label>
+                  <input type="text" id="t-title" class="form-control" placeholder="Clean Nursery tables" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea id="t-desc" class="form-control" rows="2" placeholder="Task description..." required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Assign To</label>
+                    <select id="t-assign" class="form-control">
+                      ${staffOptions}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="t-cat" class="form-control">
+                      <option value="Cleaning">Cleaning</option>
+                      <option value="Maintenance">Maintenance</option>
+                      <option value="Teaching">Teaching</option>
+                      <option value="General">General</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select id="t-prio" class="form-control">
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" id="t-due" class="form-control" value="2026-05-26" required />
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitAddTask = function(e) {
+        e.preventDefault()
+        const newTask = {
+          id: `T${Date.now().toString().slice(-3)}`,
+          title: document.getElementById('t-title').value,
+          description: document.getElementById('t-desc').value,
+          assignedTo: document.getElementById('t-assign').value,
+          priority: document.getElementById('t-prio').value,
+          status: 'Pending',
+          dueDate: document.getElementById('t-due').value,
+          category: document.getElementById('t-cat').value
+        }
+        updateState({ tasks: [...state.tasks, newTask] })
+        closeModal()
+      }
+
+      window.handleEditTask = function(id) {
+        const task = state.tasks.find(t => t.id === id)
+        if (!task) return
+        const staffOptions = state.staff.filter(s => s.status === 'Active').map(st => `
+          <option value="${st.id}" ${task.assignedTo === st.id ? 'selected' : ''}>${st.name} (${st.role})</option>
+        `).join('')
+
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Edit Task Details</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitEditTask(event, '${id}')" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Task Title</label>
+                  <input type="text" id="t-title" class="form-control" value="${task.title}" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea id="t-desc" class="form-control" rows="2" required>${task.description}</textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Assign To</label>
+                    <select id="t-assign" class="form-control">
+                      ${staffOptions}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="t-cat" class="form-control">
+                      <option value="Cleaning" ${task.category === 'Cleaning' ? 'selected' : ''}>Cleaning</option>
+                      <option value="Maintenance" ${task.category === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                      <option value="Teaching" ${task.category === 'Teaching' ? 'selected' : ''}>Teaching</option>
+                      <option value="General" ${task.category === 'General' ? 'selected' : ''}>General</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select id="t-prio" class="form-control">
+                      <option value="High" ${task.priority === 'High' ? 'selected' : ''}>High</option>
+                      <option value="Medium" ${task.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+                      <option value="Low" ${task.priority === 'Low' ? 'selected' : ''}>Low</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" id="t-due" class="form-control" value="${task.dueDate}" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select id="t-status" class="form-control">
+                    <option value="Pending" ${task.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="In Progress" ${task.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="Done" ${task.status === 'Done' ? 'selected' : ''}>Done</option>
+                  </select>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitEditTask = function(e, id) {
+        e.preventDefault()
+        const list = state.tasks.map(t => {
+          if (t.id !== id) return t
+          return {
+            ...t,
+            title: document.getElementById('t-title').value,
+            description: document.getElementById('t-desc').value,
+            assignedTo: document.getElementById('t-assign').value,
+            priority: document.getElementById('t-prio').value,
+            status: document.getElementById('t-status').value,
+            dueDate: document.getElementById('t-due').value,
+            category: document.getElementById('t-cat').value
+          }
+        })
+        updateState({ tasks: list })
+        closeModal()
+      }
+
+      window.handleDeleteTask = function(id) {
+        if (confirm("Delete task card?")) {
+          updateState({ tasks: state.tasks.filter(t => t.id !== id) })
+        }
+      }
+
+      window.handleOpenReportIssue = function() {
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content" style="border-color: var(--danger)">
+              <div class="modal-header">
+                <h2 class="modal-title" style="color: var(--danger)">Report Facility Issue</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitReportIssue(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Issue Title</label>
+                  <input type="text" id="i-title" class="form-control" placeholder="Washroom flush broken" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Location / Room</label>
+                    <input type="text" id="i-loc" class="form-control" placeholder="Play Group Room Washroom" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Urgency</label>
+                    <select id="i-prio" class="form-control">
+                      <option value="High">Urgent / High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Details / Description</label>
+                  <textarea id="i-desc" class="form-control" rows="2" placeholder="Explain details..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-danger">File Report</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitReportIssue = function(e) {
+        e.preventDefault()
+        const title = document.getElementById('i-title').value
+        const loc = document.getElementById('i-loc').value
+        const desc = document.getElementById('i-desc').value
+        const prio = document.getElementById('i-prio').value
+
+        const newReport = {
+          id: `T${Date.now().toString().slice(-3)}`,
+          title: `[SUPPORT ALERT] ${title}`,
+          description: `Location: ${loc}. Info: ${desc}`,
+          assignedTo: 'ST205', // Ramesh Kumar (Support maintenance)
+          priority: prio,
+          status: 'Pending',
+          dueDate: new Date().toISOString().split('T')[0],
+          category: 'Maintenance'
+        }
+        updateState({ tasks: [...state.tasks, newReport], activeView: 'tasks' })
+        closeModal()
+        alert("Maintenance task filed successfully!")
+      }
+
+      window.handleOpenAddActivity = function() {
+        const inventoryOptions = state.inventory.map(item => `
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass)">
+            <input type="checkbox" name="act-materials" value="${item.name}" />
+            <span>${item.name}</span>
+          </label>
+        `).join('')
+
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content" style="max-width: 550px">
+              <div class="modal-header">
+                <h2 class="modal-title">Schedule Classroom Activity</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddActivity(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Activity Name / Topic</label>
+                  <input type="text" id="act-name" class="form-control" placeholder="e.g. Origami Animal Crafts" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Target Class</label>
+                    <select id="act-class" class="form-control">
+                      <option value="Play Group">Play Group</option>
+                      <option value="Nursery">Nursery</option>
+                      <option value="LKG">LKG</option>
+                      <option value="UKG">UKG</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Scheduled Date & Time</label>
+                    <input type="datetime-local" id="act-datetime" class="form-control" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Details / Description</label>
+                  <textarea id="act-desc" class="form-control" rows="2" placeholder="e.g. Fold basic paper frogs..." required></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="margin-bottom: 0.5rem">Select Supplies to Consume</label>
+                  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; max-height: 120px; overflow-y: auto; padding-right: 0.25rem">
+                    ${inventoryOptions}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Schedule Activity</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        
+        // Set default date-time to now
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+        document.getElementById('act-datetime').value = now.toISOString().slice(0, 16)
+        
+        lucide.createIcons()
+      }
+
+      window.submitAddActivity = function(e) {
+        e.preventDefault()
+        
+        const checkboxes = document.querySelectorAll('input[name="act-materials"]:checked')
+        const selectedMaterials = Array.from(checkboxes).map(cb => cb.value)
+        
+        const newAct = {
+          id: `ACT${Date.now().toString().slice(-3)}`,
+          name: document.getElementById('act-name').value,
+          description: document.getElementById('act-desc').value,
+          class: document.getElementById('act-class').value,
+          materials: selectedMaterials,
+          scheduledDateTime: document.getElementById('act-datetime').value,
+          isFavorite: false
+        }
+        
+        updateState({ activities: [...state.activities, newAct] })
+        closeModal()
+      }
+
+      window.handleOpenAddEvent = function() {
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Schedule School Event</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddEvent(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Event Title</label>
+                  <input type="text" id="ev-title" class="form-control" placeholder="e.g. Summer Camp" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Event Date</label>
+                    <input type="date" id="ev-date" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="ev-status" class="form-control">
+                      <option value="Upcoming">Upcoming</option>
+                      <option value="Ongoing">Ongoing</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea id="ev-desc" class="form-control" rows="2" placeholder="Event description..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Schedule Event</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        
+        // Set default date to today
+        document.getElementById('ev-date').value = new Date().toISOString().split('T')[0]
+        
+        lucide.createIcons()
+      }
+
+      window.submitAddEvent = function(e) {
+        e.preventDefault()
+        
+        const newEv = {
+          id: `EV${Date.now().toString().slice(-3)}`,
+          title: document.getElementById('ev-title').value,
+          date: document.getElementById('ev-date').value,
+          status: document.getElementById('ev-status').value,
+          description: document.getElementById('ev-desc').value
+        }
+        
+        updateState({ events: [...state.events, newEv] })
+        closeModal()
+      }
+
+      window.handleOpenAddLesson = function() {
+        modalHost.innerHTML = `
+          <div class="modal-overlay">
+            <div class="glass-panel modal-content">
+              <div class="modal-header">
+                <h2 class="modal-title">Create Lesson Plan</h2>
+                <button onclick="closeModal()" class="modal-close-btn"><i data-lucide="x"></i></button>
+              </div>
+              <form onsubmit="submitAddLesson(event)" style="display: flex; flex-direction: column; gap: 1.25rem">
+                <div class="form-group">
+                  <label class="form-label">Topic / Title</label>
+                  <input type="text" id="lp-topic" class="form-control" placeholder="e.g. Intro to Primary Colors" required />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Class</label>
+                    <select id="lp-class" class="form-control">
+                      <option value="Play Group">Play Group</option>
+                      <option value="Nursery">Nursery</option>
+                      <option value="LKG">LKG</option>
+                      <option value="UKG">UKG</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <input type="text" id="lp-duration" class="form-control" placeholder="e.g. 45 mins" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Objective</label>
+                  <input type="text" id="lp-objective" class="form-control" placeholder="e.g. Identify primary colors..." required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Core Activities</label>
+                  <textarea id="lp-activities" class="form-control" rows="2" placeholder="e.g. Painting, block sorting..." required></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Materials Required</label>
+                  <input type="text" id="lp-materials" class="form-control" placeholder="e.g. Colored Chart Paper, paint sets" required />
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Create Plan</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `
+        lucide.createIcons()
+      }
+
+      window.submitAddLesson = function(e) {
+        e.preventDefault()
+        const newPlan = {
+          id: `LP${randLPId()}`,
+          class: document.getElementById('lp-class').value,
+          topic: document.getElementById('lp-topic').value,
+          duration: document.getElementById('lp-duration').value,
+          objective: document.getElementById('lp-objective').value,
+          activities: document.getElementById('lp-activities').value,
+          materials: document.getElementById('lp-materials').value
+        }
+        const lessons = state.lessons || []
+        updateState({ lessons: [...lessons, newPlan] })
+        closeModal()
+      }
+
+      window.handleDuplicateLesson = function(id) {
+        const lessons = state.lessons || []
+        const original = lessons.find(l => l.id === id)
+        if (original) {
+          const duplicate = {
+            ...original,
+            id: `LP${randLPId()}`,
+            topic: `${original.topic} (Copy)`
+          }
+          updateState({ lessons: [...lessons, duplicate] })
+        }
+      }
+
+      window.handleDeleteLesson = function(id) {
+        if (confirm("Are you sure you want to delete this lesson plan?")) {
+          const lessons = state.lessons || []
+          updateState({ lessons: lessons.filter(l => l.id !== id) })
+        }
+      }
+
+      function randLPId() {
+        return Math.floor(100 + Math.random() * 900)
+      }
+
+      window.closeModal = function() {
+        modalHost.innerHTML = ''
+      }
+
+      // ==========================================
+      // VOICE COMMAND ENGINE (WEB SPEECH API)
+      // ==========================================
+      let recognition = null
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition()
+        recognition.continuous = false
+        recognition.interimResults = false
+        recognition.lang = 'en-IN'
+
+        recognition.onstart = () => {
+          updateState({ 
+            isRecording: true, 
+            voiceOverlayOpen: true, 
+            voiceTranscript: 'Listening for command...',
+            voiceAction: null 
+          })
+        }
+
+        recognition.onresult = (e) => {
+          const txt = e.results[0][0].transcript
+          updateState({ voiceTranscript: txt })
+          parseVoiceCommand(txt)
+        }
+
+        recognition.onerror = (e) => {
+          updateState({ 
+            isRecording: false, 
+            voiceTranscript: `Microphone Error: ${e.error || 'Check browser permissions'}` 
+          })
+        }
+
+        recognition.onend = () => {
+          updateState({ isRecording: false })
+        }
+      }
+
+      window.toggleMicRecording = function() {
+        if (!recognition) {
+          // No browser support
+          updateState({ 
+            voiceOverlayOpen: true, 
+            voiceTranscript: 'Web Speech API not supported in this browser. Use typing input below:' 
+          })
+          return
+        }
+
+        if (state.isRecording) {
+          recognition.stop()
+        } else {
+          try {
+            recognition.start()
+          } catch(err) {
+            updateState({ 
+              voiceOverlayOpen: true, 
+              voiceTranscript: 'Failed to access mic. Try the typing input below:' 
+            })
+          }
+        }
+      }
+
+      // Voice NLP parsing rules
+      async function parseVoiceCommand(cmdText) {
+        try {
+          const response = await fetch('api/voice.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              transcript: cmdText,
+              languagePreference: 'Tamil'
+            })
+          });
+          const data = await response.json();
+          
+          if (data.error) {
+            updateState({
+              voiceAction: {
+                label: 'Error',
+                description: data.error,
+                execute: null
+              }
+            });
+            return;
+          }
+
+          // Execute action IMMEDIATELY - no confirm needed
+          const actionLabel = data.success ? (data.action?.type ? data.action.type.replace(/_/g, ' ') : 'Action Recognized') : 'Intent Unrecognized';
+
+          updateState({
+            voiceAction: {
+              label: actionLabel,
+              description: data.message,
+              success: data.success,
+              execute: null
+            }
+          });
+
+          if (data.success) {
+            // Speak response in Tamil (ta-IN)
+            if ('speechSynthesis' in window && data.speechText) {
+              window.speechSynthesis.cancel();
+              const utterance = new SpeechSynthesisUtterance(data.speechText);
+              utterance.lang = 'ta-IN';
+              window.speechSynthesis.speak(utterance);
+            }
+
+            // Sync updated state to frontend
+            if (data.updatedData) {
+              updateState({
+                students: data.updatedData.students,
+                staff: data.updatedData.staff,
+                inventory: data.updatedData.inventory,
+                tasks: data.updatedData.tasks,
+                attendance: data.updatedData.attendance,
+                voiceLogs: data.updatedData.voiceLogs
+              });
+            }
+
+            // Navigate if action is NAVIGATE
+            if (data.action && data.action.type === 'NAVIGATE') {
+              updateState({ activeView: data.action.targetView });
+            }
+
+            // Auto-dismiss after 2 seconds
+            setTimeout(() => {
+              updateState({ voiceOverlayOpen: false, voiceAction: null, voiceTranscript: '' });
+            }, 2000);
+          } else {
+            // Auto-dismiss unrecognized after 3.5 seconds
+            setTimeout(() => {
+              updateState({ voiceOverlayOpen: false, voiceAction: null, voiceTranscript: '' });
+            }, 3500);
+          }
+          
+        } catch (err) {
+          console.error("Error matching voice command via PHP API:", err);
+          updateState({
+            voiceAction: {
+              label: 'Connection Error',
+              description: 'Could not contact voice parsing API. Make sure PHP server is running.',
+              success: false,
+              execute: null
+            }
+          });
+        }
+      }
+
+      window.handleTypeVoiceCommand = function(e) {
+        e.preventDefault()
+        const val = document.getElementById('voice-text-type-input').value
+        if (!val.trim()) return
+        updateState({ voiceTranscript: val })
+        parseVoiceCommand(val)
+        document.getElementById('voice-text-type-input').value = ''
+      }
+
+      window.simulateVoiceCommand = function(cmd) {
+        updateState({ voiceTranscript: cmd })
+        parseVoiceCommand(cmd)
+      }
+
+      // ==========================================
+      // RENDER VOICE CONTROLLER OVERLAY
+      // ==========================================
+      function renderVoiceController() {
+        const root = document.getElementById('voice-assistant-root')
+        
+        let overlayHtml = ''
+        if (state.voiceOverlayOpen) {
+          let actionPreviewHtml = ''
+          if (state.voiceAction) {
+            const successColor = state.voiceAction.success ? 'var(--accent)' : 'var(--danger)';
+            const icon = state.voiceAction.success ? '✓' : '✗';
+            actionPreviewHtml = `
+              <div class="voice-action-preview">
+                <span class="voice-action-label" style="color:${successColor}; display:flex; align-items:center; gap:0.3rem">${icon} ${state.voiceAction.label}</span>
+                <p class="voice-action-desc">${state.voiceAction.description}</p>
+              </div>
+              <button onclick="updateState({ voiceOverlayOpen: false, voiceAction: null, voiceTranscript: '' })" class="btn btn-secondary btn-sm" style="width:100%">Dismiss</button>
+            `
+          }
+
+          const isNetworkError = state.voiceTranscript.includes('Microphone Error: network')
+          const warningHtml = isNetworkError ? `
+            <div style="font-size: 0.76rem; color: var(--warning); line-height: 1.35; padding: 0.5rem; border: 1px solid rgba(217, 119, 6, 0.2); background: rgba(217, 119, 6, 0.04); border-radius: var(--radius-sm); margin-top: 0.25rem;">
+              <strong>Security/Network Limit:</strong> Chrome restricts speech-to-text connection on local files (<code>file://</code>). Use the quick test buttons or type commands below to test!
+            </div>
+          ` : ''
+
+          overlayHtml = `
+            <div class="glass-panel voice-overlay fade-in">
+              <div class="voice-overlay-header">
+                <div class="voice-status-indicator">
+                  ${state.isRecording ? `
+                    <span class="voice-pulse-dot"></span>
+                    <span>Voice listening...</span>
+                  ` : '<span>Voice Assistant</span>'}
+                </div>
+                <button onclick="updateState({ voiceOverlayOpen: false, voiceAction: null })" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer">
+                  <i data-lucide="x" style="width:16px;height:16px"></i>
+                </button>
+              </div>
+
+              <div class="voice-transcript-box">
+                ${state.voiceTranscript ? `<span>"${state.voiceTranscript}"</span>` : `<span class="voice-transcript-placeholder">Try: "Mark attendance for LKG" or "Go to Inventory"</span>`}
+              </div>
+
+              ${warningHtml}
+
+              ${actionPreviewHtml}
+
+              <!-- Quick Click Simulation Buttons -->
+              <div style="border-top: 1px solid var(--border-glass); padding-top: 0.75rem; margin-top: 0.25rem">
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem; font-weight: 600">Quick Test Commands (Simulate Speech)</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.25rem">
+                  <button onclick="simulateVoiceCommand('Mark attendance for LKG')" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 4px; background: rgba(139, 92, 246, 0.06);">Mark LKG Attendance</button>
+                  <button onclick="simulateVoiceCommand('Create task for Ramesh clean washroom')" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 4px; background: rgba(16, 185, 129, 0.04);">Assign Cleaning Task</button>
+                  <button onclick="simulateVoiceCommand('Add inventory item Liquid Hand Soap')" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 4px; background: rgba(217, 119, 6, 0.04);">Add Liquid Hand Soap</button>
+                  <button onclick="simulateVoiceCommand('Go to tasks')" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 4px;">Navigate to Tasks</button>
+                </div>
+              </div>
+
+              <!-- Typing Fallback Form -->
+              <div style="border-top: 1px solid var(--border-glass); padding-top: 0.75rem; margin-top: 0.25rem">
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem">Type Command (Developer Fallback)</span>
+                <form onsubmit="handleTypeVoiceCommand(event)" style="display: flex; gap: 0.5rem">
+                  <input type="text" id="voice-text-type-input" placeholder="e.g. Mark attendance for LKG" class="form-control" style="flex: 1; padding: 0.35rem; font-size: 0.75rem" />
+                  <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.35rem">Parse</button>
+                </form>
+              </div>
+            </div>
+          `
+        }
+
+        root.innerHTML = `
+          <!-- Microphone Button -->
+          <button 
+            onclick="toggleMicRecording()" 
+            class="voice-controller-btn ${state.isRecording ? 'recording' : ''}"
+          >
+            <i data-lucide="${state.isRecording ? 'mic-off' : 'mic'}"></i>
+          </button>
+          
+          <!-- Overlay Card -->
+          ${overlayHtml}
+        `
+      }
+
+      // ==========================================
+      // CORE RENDER FLOW LOOP
+      // ==========================================
+      function renderApp() {
+        renderSidebar()
+        renderActiveView()
+        renderVoiceController()
+        // Instantiate Lucide icons globally in DOM
+        lucide.createIcons()
+      }
+
+      // Fetch initial state on boot
+      function bootApp() {
+        fetch('api/state.php')
+          .then(res => res.json())
+          .then(data => {
+            if (data && !data.error) {
+              state = { ...state, ...data, attendanceDate: new Date().toISOString().split('T')[0] }
+            }
+            renderApp()
+          })
+          .catch(err => {
+            console.warn("Backend not active or error loading database, running in-memory mode.");
+            renderApp();
+          });
+      }
+
+      // Initial Boot
+      window.onload = () => {
+        bootApp()
+      }
+    </script>
+  </body>
+</html>
+
